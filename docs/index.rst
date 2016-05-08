@@ -15,7 +15,7 @@ Django + Stripe Made Easy
 * Built-in migrations
 * Dead-Easy installation
 * Leverages in the best of the 3rd party Django package ecosystem.
-* `djstripe` namespace so you can have more than one payments related app.
+* `djbraintree` namespace so you can have more than one payments related app.
 * Documented (Making good progress)
 * Tested (Making good progress)
 
@@ -29,7 +29,7 @@ Contents
    usage
    settings
    cookbook
-   migrating_to_djstripe
+   migrating_to_djbraintree
    contributing
    authors
    history

@@ -11,13 +11,13 @@ from .utils import subscriber_has_active_subscription
 from .settings import subscriber_request_callback
 
 
-def user_passes_pay_test(test_func, pay_page="djstripe:subscribe"):
-    warnings.warn("Deprecated - Use ``subscriber_passes_pay_test`` instead. This method will be removed in dj-stripe 1.0.", DeprecationWarning)
+def user_passes_pay_test(test_func, pay_page="djbraintree:subscribe"):
+    warnings.warn("Deprecated - Use ``subscriber_passes_pay_test`` instead. This method will be removed in dj-braintree 1.0.", DeprecationWarning)
 
     return subscriber_passes_pay_test(test_func=test_func, pay_page=pay_page)
 
 
-def subscriber_passes_pay_test(test_func, pay_page="djstripe:subscribe"):
+def subscriber_passes_pay_test(test_func, pay_page="djbraintree:subscribe"):
     """
     Decorator for views that checks that the subscriber passes the given test for a "Paid Feature",
     redirecting to the pay form if necessary. The test should be a callable
@@ -35,7 +35,7 @@ def subscriber_passes_pay_test(test_func, pay_page="djstripe:subscribe"):
     return decorator
 
 
-def subscription_payment_required(function=None, pay_page="djstripe:subscribe"):
+def subscription_payment_required(function=None, pay_page="djbraintree:subscribe"):
     """
     Decorator for views that require subscription payment, redirecting to the
     subscribe page if necessary.

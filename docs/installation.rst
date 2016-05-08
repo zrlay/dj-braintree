@@ -7,16 +7,16 @@ Get the distribution
 
 At the command line::
 
-    $ pip install dj-stripe
+    $ pip install dj-braintree
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv dj-stripe
-    $ pip install dj-stripe
+    $ mkvirtualenv dj-braintree
+    $ pip install dj-braintree
 
-Or, if you want to develop on ``djstripe`` itself::
+Or, if you want to develop on ``djbraintree`` itself::
 
-    $ git clone https://github.com/<yourname>/dj-stripe/
+    $ git clone https://github.com/<yourname>/dj-braintree/
     $ python setup.py develop
 
 
@@ -24,12 +24,12 @@ Configuration
 ---------------
 
 
-Add ``djstripe`` to your ``INSTALLED_APPS``:
+Add ``djbraintree`` to your ``INSTALLED_APPS``:
 
 .. code-block:: python
 
     INSTALLED_APPS += (
-        "djstripe",
+        "djbraintree",
     )
 
 Add your stripe keys:
@@ -81,15 +81,15 @@ Add some payment plans:
 
 Add to the urls.py::
 
-    url(r'^payments/', include('djstripe.urls', namespace="djstripe")),
+    url(r'^payments/', include('djbraintree.urls', namespace="djbraintree")),
 
 Run the commands::
 
     python manage.py migrate
 
-    python manage.py djstripe_init_customers
+    python manage.py djbraintree_init_customers
 
-    python manage.py djstripe_init_plans
+    python manage.py djbraintree_init_plans
 
 If you haven't already, add JQuery and the Bootstrap 3.0.0+ JS and CSS to your base template:
 
@@ -119,6 +119,6 @@ Running Tests
 
 Assuming the tests are run against PostgreSQL::
 
-    createdb djstripe
+    createdb djbraintree
     pip install -r requirements_test.txt
     python runtests.py

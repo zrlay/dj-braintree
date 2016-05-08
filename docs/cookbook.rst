@@ -19,7 +19,7 @@ it for reuse.
     from django.db import models
     from django.utils.functional import cached_property
 
-    from djstripe.utils import subscriber_has_active_subscription
+    from djbraintree.utils import subscriber_has_active_subscription
 
 
     class User(AbstractUser):
@@ -66,7 +66,7 @@ Usage:
 Adding a custom plan that is outside of stripe
 -----------------------------------------------
 
-Sometimes you want a custom plan for per-customer billing. Or perhaps you are providing a special free-for-open-source plan. In which case, `djstripe.settings.PLAN_CHOICES` is your friend:
+Sometimes you want a custom plan for per-customer billing. Or perhaps you are providing a special free-for-open-source plan. In which case, `djbraintree.settings.PLAN_CHOICES` is your friend:
 
 .. code-block:: python
 
@@ -77,8 +77,8 @@ Sometimes you want a custom plan for per-customer billing. Or perhaps you are pr
     from django.db import models
     from django.utils.translation import ugettext_lazy as _
 
-    from djstripe.settings import PLAN_CHOICES
-    from djstripe.signals import subscription_made
+    from djbraintree.settings import PLAN_CHOICES
+    from djbraintree.signals import subscription_made
 
     CUSTOM_CHOICES = (
         ("custom", "Custom"),
@@ -115,7 +115,7 @@ On the subscriber's customer object, use the charge method to generate a Stripe 
 
     from django.contrib.auth import get_user_model
 
-    from djstripe.models import Customer
+    from djbraintree.models import Customer
 
 
     user = get_user_model().objects.get(id=1)
@@ -125,7 +125,7 @@ On the subscriber's customer object, use the charge method to generate a Stripe 
     amount = Decimal(10.00)
     customer.charge(amount)
 
-Source code for the Customer.charge method is at https://github.com/pydanny/dj-stripe/blob/master/djstripe/models.py#L573-L596
+Source code for the Customer.charge method is at https://github.com/pydanny/dj-braintree/blob/master/djbraintree/models.py#L573-L596
 
 REST API
 --------
@@ -181,6 +181,6 @@ DELETE will cancel the current subscription, based on the settings.
 Not in the Cookbook?
 =====================
 
-Cartwheel Web provides `commercial support`_ for dj-stripe and other open source packages.
+Cartwheel Web provides `commercial support`_ for dj-braintree and other open source packages.
 
 .. _commercial support: https://www.cartwheelweb.com/open-source-commercial-support/

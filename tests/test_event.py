@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_event
-   :synopsis: dj-stripe Event Model Tests.
+.. module:: dj-braintree.tests.test_event
+   :synopsis: dj-braintree Event Model Tests.
 
 .. moduleauthor:: Daniel Greenfeld (@pydanny)
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
@@ -16,7 +16,7 @@ from django.utils import timezone
 from mock import patch, PropertyMock
 import stripe
 
-from djstripe.models import Customer, Event, CurrentSubscription
+from djbraintree.models import Customer, Event, CurrentSubscription
 from tests import convert_to_fake_stripe_object
 
 
@@ -237,9 +237,9 @@ class EventTest(TestCase):
         event.process()
         self.assertFalse(event.processed)
 
-    @patch('djstripe.models.Customer.objects.get')
+    @patch('djbraintree.models.Customer.objects.get')
     @patch('stripe.Invoice.retrieve')
-    @patch('djstripe.models.Invoice.sync_from_stripe_data')
+    @patch('djbraintree.models.Invoice.sync_from_stripe_data')
     def test_process_invoice_event(self, stripe_sync_mock, retrieve_mock, customer_get):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -255,9 +255,9 @@ class EventTest(TestCase):
         stripe_sync_mock.assert_called_once_with(self.message['object'], send_receipt=True)
         self.assertTrue(event.processed)
 
-    @patch('djstripe.models.Customer.objects.get')
+    @patch('djbraintree.models.Customer.objects.get')
     @patch('stripe.Invoice.retrieve')
-    @patch('djstripe.models.Invoice.sync_from_stripe_data')
+    @patch('djbraintree.models.Invoice.sync_from_stripe_data')
     def test_process_invoice_event_ignored(self, stripe_sync_mock, retrieve_mock, customer_get):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -272,9 +272,9 @@ class EventTest(TestCase):
         self.assertFalse(stripe_sync_mock.called)
         self.assertTrue(event.processed)
 
-    @patch('djstripe.models.Customer.objects.get')
+    @patch('djbraintree.models.Customer.objects.get')
     @patch('stripe.Invoice.retrieve')
-    @patch('djstripe.models.Invoice.sync_from_stripe_data')
+    @patch('djbraintree.models.Invoice.sync_from_stripe_data')
     def test_process_invoice_event_badcustomer(self, stripe_sync_mock, retrieve_mock, customer_get):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -291,7 +291,7 @@ class EventTest(TestCase):
         self.assertTrue(event.processed)
 
     @patch('stripe.Charge.retrieve', return_value='hello')
-    @patch('djstripe.models.Charge.sync_from_stripe_data')
+    @patch('djbraintree.models.Charge.sync_from_stripe_data')
     def test_process_charge_event(self, record_charge_mock, retrieve_mock):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -307,7 +307,7 @@ class EventTest(TestCase):
         record_charge_mock.assert_called_once_with("hello")
         self.assertTrue(event.processed)
 
-    @patch('djstripe.models.Customer.sync_current_subscription')
+    @patch('djbraintree.models.Customer.sync_current_subscription')
     def test_customer_subscription_event(self, sync_current_subscription_mock):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -321,7 +321,7 @@ class EventTest(TestCase):
         sync_current_subscription_mock.assert_called_once_with()
         self.assertTrue(event.processed)
 
-    @patch('djstripe.models.Customer.sync_current_subscription')
+    @patch('djbraintree.models.Customer.sync_current_subscription')
     def test_customer_subscription_event_no_customer(self, sync_current_subscription_mock):
         self.message["data"]["object"]["customer"] = None
         event = Event.objects.create(
@@ -336,7 +336,7 @@ class EventTest(TestCase):
         self.assertFalse(sync_current_subscription_mock.called)
         self.assertTrue(event.processed)
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=fake_current_subscription)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=fake_current_subscription)
     def test_customer_subscription_deleted_event(self, current_subscription_mock):
         event = Event.objects.create(
             stripe_id=self.message["id"],
@@ -401,8 +401,8 @@ class EventTest(TestCase):
         event.process()
         self.assertTrue(event.processed)
 
-    @patch('djstripe.models.EventProcessingException.log')
-    @patch('djstripe.models.Event.send_signal', side_effect=stripe.StripeError())
+    @patch('djbraintree.models.EventProcessingException.log')
+    @patch('djbraintree.models.Event.send_signal', side_effect=stripe.StripeError())
     def test_stripe_error(self, send_signal_mock, event_exception_log):
         event = Event.objects.create(
             stripe_id=self.message["id"],

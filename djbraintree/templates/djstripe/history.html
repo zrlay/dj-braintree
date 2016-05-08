@@ -1,4 +1,4 @@
-{% extends "djstripe/base.html" %}
+{% extends "djbraintree/base.html" %}
 
 {% block title %}Payment History{% endblock title %}
 
@@ -6,10 +6,10 @@
 <div class="row">
     <div class="col-xs-12">
         <ul class="breadcrumb">
-            <li><a href="{% url 'djstripe:account' %}">Home</a></li>
+            <li><a href="{% url 'djbraintree:account' %}">Home</a></li>
             <li class="active">Payment History</li>
         </ul>
-        {% include "djstripe/includes/_history_table.html" %}
+        {% include "djbraintree/includes/_history_table.html" %}
     </div>
 </div>
 {% endblock content %}
@@ -18,7 +18,7 @@
 {{ block.super }}
 <script>
     $(function() {
-        $.post("{% url 'djstripe:sync_history' %}", function(data) {
+        $.post("{% url 'djbraintree:sync_history' %}", function(data) {
             $('#history-table').html(data);
             $('.in-progress-gif').hide();
         });

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: djstripe.forms
-   :synopsis: dj-stripe Forms.
+.. module:: djbraintree.forms
+   :synopsis: dj-braintree Forms.
 
 .. moduleauthor:: Daniel Greenfeld (@pydanny)
 

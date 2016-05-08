@@ -25,9 +25,9 @@ History
 
 0.7.0 (2015-09-22)
 ---------------------
-* dj-stripe now responds to the invoice.created event (Thanks @wahuneke)
-* dj-stripe now cancels subscriptions and purges customers during sync if they were deleted from the stripe dashboard (Thanks @unformatt)
-* dj-stripe now checks for an active stripe subscription in the ``update_plan_quantity`` call (Thanks @ctrengove)
+* dj-braintree now responds to the invoice.created event (Thanks @wahuneke)
+* dj-braintree now cancels subscriptions and purges customers during sync if they were deleted from the stripe dashboard (Thanks @unformatt)
+* dj-braintree now checks for an active stripe subscription in the ``update_plan_quantity`` call (Thanks @ctrengove)
 * Event processing is now handled by "event handlers" - functions outside of models that respond to various event types and subtypes. Documentation on how to tie into the event handler system coming soon. (Thanks @wahuneke)
 * Experimental Python 3.5 support
 * Support for Django 1.6 and lower is now officially gone.
@@ -56,7 +56,7 @@ History
 * Began deprecation of support for Django 1.6 and lower.
 * Added formal support for Django 1.8.
 * Removed the StripeSubscriptionSignupForm
-* Removed ``djstripe.safe_settings``. Settings are now all located in ``djstripe.settings``
+* Removed ``djbraintree.safe_settings``. Settings are now all located in ``djbraintree.settings``
 * ``DJSTRIPE_TRIAL_PERIOD_FOR_SUBSCRIBER_CALLBACK`` can no longer be a module string
 * The sync_subscriber argument has been renamed from subscriber_model to subscriber
 * Moved available currencies to the DJSTRIPE_CURRENCIES setting (Thanks @martinhill)
@@ -73,7 +73,7 @@ History
 * Formal Python 3.3+/Django 1.7 Support (including migrations)
 * Removed Python 2.6 from Travis CI build. (Thanks @audreyr)
 * Dropped Django 1.4 support. (Thanks @audreyr)
-* Deprecated the ``djstripe.forms.StripeSubscriptionSignupForm``. Making this form work easily with both `dj-stripe` and `django-allauth` required too much abstraction. It will be removed in the 0.5.0 release.
+* Deprecated the ``djbraintree.forms.StripeSubscriptionSignupForm``. Making this form work easily with both `dj-braintree` and `django-allauth` required too much abstraction. It will be removed in the 0.5.0 release.
 * Add the ability to add invoice items for a customer (Thanks @kavdev)
 * Add the ability to use a custom customer model (Thanks @kavdev)
 * Added setting to disable Invoice receipt emails (Thanks Chris Halpert)
@@ -95,7 +95,7 @@ History
 0.3.5 (2014-05-01)
 ----------------------
 
-* Fixed ``djstripe_init_customers`` management command so it works with custom user models.
+* Fixed ``djbraintree_init_customers`` management command so it works with custom user models.
 
 0.3.4 (2014-05-01)
 ----------------------
@@ -136,7 +136,7 @@ History
 
 * Fully tested against Django 1.6, 1.5, and 1.4
 * Fix boolean default issue in models (from now on they are all default to `False`).
-* Replace duplicated code with `djstripe.utils.user_has_active_subscription`.
+* Replace duplicated code with `djbraintree.utils.user_has_active_subscription`.
 
 0.2.9 (2013-09-06)
 ----------------------
@@ -214,7 +214,7 @@ History
 0.1.7 (2013-08-08)
 ----------------------
 
-* Middleware excepts all of the djstripe namespaced URLs. This way people can pay.
+* Middleware excepts all of the djbraintree namespaced URLs. This way people can pay.
 
 0.1.6 (2013-08-08)
 ----------------------
@@ -243,7 +243,7 @@ History
 
 * Added account view
 * Added Customer.get_or_create method
-* Added djstripe_sync_customers management command
+* Added djbraintree_sync_customers management command
 * sync file for all code that keeps things in sync with stripe
 * Use client-side JavaScript to get history data asynchronously
 * More user friendly action views

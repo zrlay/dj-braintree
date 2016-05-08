@@ -1,1 +1,1 @@
-{% extends "djstripe/email/body_base.txt" %}
+{% extends "djbraintree/email/body_base.txt" %}

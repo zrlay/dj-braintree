@@ -11,9 +11,9 @@ from django.utils import timezone
 
 from unittest2 import TestCase as AssertWarnsEnabledTestCase
 
-from djstripe.decorators import subscription_payment_required
-from djstripe.models import Customer, CurrentSubscription
-from djstripe.stripe_objects import stripe_temporary_api_key
+from djbraintree.decorators import subscription_payment_required
+from djbraintree.models import Customer, CurrentSubscription
+from djbraintree.stripe_objects import stripe_temporary_api_key
 
 
 class TestDeprecationWarning(AssertWarnsEnabledTestCase):
@@ -24,7 +24,7 @@ class TestDeprecationWarning(AssertWarnsEnabledTestCase):
 
     def test_deprecation(self):
         with self.assertWarns(DeprecationWarning):
-            from djstripe.decorators import user_passes_pay_test
+            from djbraintree.decorators import user_passes_pay_test
 
             test_func = (lambda subscriber: True)
             user_passes_pay_test(test_func=test_func)

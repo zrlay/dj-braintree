@@ -15,8 +15,14 @@ from .braintree_objects import (BraintreeCustomer, BraintreeTransaction,
 
 
 class Customer(BraintreeCustomer):
-    user = models.OneToOneField(
-        getattr(settings, 'BRAINTREE_CUSTOMER_MODEL', settings.AUTH_USER_MODEL),
+    """
+    A record of a Braintree Customer. One to one relationship to a payer model.
+
+    Calling the customer's related model "entity" helps remind us
+    that we might not have a user object as the Payer Model.
+    """
+    entity = models.OneToOneField(
+        getattr(settings, 'DJBRAINTREE_PAYER_MODEL', settings.AUTH_USER_MODEL),
         null=True)
 
     # objects = CustomerManager()
@@ -27,26 +33,22 @@ class Customer(BraintreeCustomer):
                ] + super(Customer, self).str_parts()
 
     @classmethod
-    def get_or_create(cls, user, **kwargs):
+    def get_or_create(cls, entity, **kwargs):
         try:
-            return Customer.objects.get(user=user), False
+            return Customer.objects.get(entity=entity), False
         except Customer.DoesNotExist:
-            return cls.create(user, **kwargs), True
+            return cls.create(entity, **kwargs), True
 
     @classmethod
-    def create(cls, user, **kwargs):
-        first_name = kwargs.pop('first_name', user.first_name)
-        last_name = kwargs.pop('last_name', user.last_name)
-        email = kwargs.pop('email', user.email)
+    def create(cls, entity, **kwargs):
+        email = kwargs.pop('email', entity.email)
         result = cls.api().create(dict(
-            first_name=first_name,
-            last_name=last_name,
             email=email,
             **kwargs
         ))
         obj = cls.extract_object_from_result(result)
         data = cls.braintree_object_to_record(obj)
-        customer = Customer.objects.create(user=user, **data)
+        customer = Customer.objects.create(entity=entity, **data)
         return customer
 
     def update(self, **kwargs):

@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_stripe_object
-   :synopsis: dj-stripe StripeObject Model Tests.
+.. module:: dj-braintree.tests.test_stripe_object
+   :synopsis: dj-braintree StripeObject Model Tests.
 
 .. moduleauthor:: Bill Huneke (@wahuneke)
 
@@ -8,7 +8,7 @@
 
 from django.test import TestCase
 
-from djstripe.stripe_objects import StripeObject
+from djbraintree.stripe_objects import StripeObject
 
 
 class StripeObjectExceptionsTest(TestCase):

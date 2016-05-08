@@ -18,13 +18,13 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = getattr(
 DJSTRIPE_SUBSCRIPTION_REDIRECT = getattr(
     settings,
     "DJSTRIPE_SUBSCRIPTION_REDIRECT",
-    "djstripe:subscribe"
+    "djbraintree:subscribe"
 )
 
 
 # So we don't have crazy long lines of code
 EXEMPT = list(DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS)
-EXEMPT.append("[djstripe]")
+EXEMPT.append("[djbraintree]")
 
 
 class SubscriptionPaymentMiddleware(object):
@@ -35,7 +35,7 @@ class SubscriptionPaymentMiddleware(object):
         * "[namespace]" means everything with this name is exempt
         * "namespace:name" means this namespaced URL is exempt
         * "name" means this URL is exempt
-        * The entire djstripe namespace is exempt
+        * The entire djbraintree namespace is exempt
         * If settings.DEBUG is True, then django-debug-toolbar is exempt
         * A 'fn:' prefix means the rest of the URL is fnmatch'd.
 

@@ -1,35 +1,35 @@
 =============================
-dj-stripe
+dj-braintree
 =============================
 Django + Stripe Made Easy
 
 Badges
 ------
 
-.. image:: https://img.shields.io/travis/pydanny/dj-stripe.svg?style=flat-square
-        :target: https://travis-ci.org/pydanny/dj-stripe
-.. image:: https://img.shields.io/codecov/c/github/pydanny/dj-stripe/master.svg?style=flat-square
-        :target: http://codecov.io/github/pydanny/dj-stripe?branch=master
-.. image:: https://img.shields.io/requires/github/pydanny/dj-stripe.svg?style=flat-square
-        :target: https://requires.io/github/pydanny/dj-stripe/requirements/?branch=master
+.. image:: https://img.shields.io/travis/pydanny/dj-braintree.svg?style=flat-square
+        :target: https://travis-ci.org/pydanny/dj-braintree
+.. image:: https://img.shields.io/codecov/c/github/pydanny/dj-braintree/master.svg?style=flat-square
+        :target: http://codecov.io/github/pydanny/dj-braintree?branch=master
+.. image:: https://img.shields.io/requires/github/pydanny/dj-braintree.svg?style=flat-square
+        :target: https://requires.io/github/pydanny/dj-braintree/requirements/?branch=master
 .. image:: https://img.shields.io/codacy/3c99e13eda1c4dea9f993b362e4ea816.svg?style=flat-square
-        :target: https://www.codacy.com/app/kavanaugh-development/dj-stripe/dashboard
+        :target: https://www.codacy.com/app/kavanaugh-development/dj-braintree/dashboard
 
-.. image:: https://img.shields.io/pypi/v/dj-stripe.svg?style=flat-square
-        :target: https://pypi.python.org/pypi/dj-stripe
-.. image:: https://img.shields.io/pypi/dw/dj-stripe.svg?style=flat-square
-        :target: https://pypi.python.org/pypi/dj-stripe
+.. image:: https://img.shields.io/pypi/v/dj-braintree.svg?style=flat-square
+        :target: https://pypi.python.org/pypi/dj-braintree
+.. image:: https://img.shields.io/pypi/dw/dj-braintree.svg?style=flat-square
+        :target: https://pypi.python.org/pypi/dj-braintree
 
-.. image:: https://img.shields.io/github/issues/pydanny/dj-stripe.svg?style=flat-square
-        :target: https://github.com/pydanny/dj-stripe/issues
-.. image:: https://img.shields.io/github/license/pydanny/dj-stripe.svg?style=flat-square
-        :target: https://github.com/pydanny/dj-stripe/blob/master/LICENSE
+.. image:: https://img.shields.io/github/issues/pydanny/dj-braintree.svg?style=flat-square
+        :target: https://github.com/pydanny/dj-braintree/issues
+.. image:: https://img.shields.io/github/license/pydanny/dj-braintree.svg?style=flat-square
+        :target: https://github.com/pydanny/dj-braintree/blob/master/LICENSE
 
 
 Documentation
 -------------
 
-The full documentation is at http://dj-stripe.rtfd.org.
+The full documentation is at http://dj-braintree.rtfd.org.
 
 Features
 --------
@@ -43,7 +43,7 @@ Features
 * Built-in migrations
 * Dead-Easy installation
 * Leverages the best of the 3rd party Django package ecosystem
-* `djstripe` namespace so you can have more than one payments related app
+* `djbraintree` namespace so you can have more than one payments related app
 * Documented
 * Tested
 * Current API version (2012-11-07), in progress of being updated
@@ -59,18 +59,18 @@ Constraints
 Quickstart
 ----------
 
-Install dj-stripe:
+Install dj-braintree:
 
 .. code-block:: bash
 
-    pip install dj-stripe
+    pip install dj-braintree
 
-Add ``djstripe`` to your ``INSTALLED_APPS``:
+Add ``djbraintree`` to your ``INSTALLED_APPS``:
 
 .. code-block:: python
 
     INSTALLED_APPS +=(
-        "djstripe",
+        "djbraintree",
     )
 
 Add your stripe keys:
@@ -107,15 +107,15 @@ Add to the urls.py:
 
 .. code-block:: python
 
-    url(r'^payments/', include('djstripe.urls', namespace="djstripe")),
+    url(r'^payments/', include('djbraintree.urls', namespace="djbraintree")),
 
 Run the commands::
 
     python manage.py migrate
 
-    python manage.py djstripe_init_customers
+    python manage.py djbraintree_init_customers
 
-    python manage.py djstripe_init_plans
+    python manage.py djbraintree_init_plans
 
 If you haven't already, add JQuery and the Bootstrap 3.0.0+ JS and CSS to your base template:
 
@@ -145,7 +145,7 @@ Running the Tests
 
 Assuming the tests are run against PostgreSQL::
 
-    createdb djstripe
+    createdb djbraintree
     pip install -r requirements_test.txt
     python runtests.py
 
@@ -165,6 +165,6 @@ This project follows best practices as espoused in `Two Scoops of Django: Best P
 Similar Projects
 ----------------
 
-* https://github.com/eldarion/django-stripe-payments - The project that dj-stripe forked. It's an awesome project and worth checking out.
+* https://github.com/eldarion/django-stripe-payments - The project that dj-braintree forked. It's an awesome project and worth checking out.
 * https://github.com/agiliq/merchant - A single charge payment processing system that also includes many other Gateways. Really nice but doesn't out-of-the-box handle the use case of subscription payments.
 * https://github.com/GoodCloud/django-zebra - One of the first stripe payment systems for Django.

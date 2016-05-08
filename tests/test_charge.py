@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_charge
-   :synopsis: dj-stripe Charge Model Tests.
+.. module:: dj-braintree.tests.test_charge
+   :synopsis: dj-braintree Charge Model Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from mock import patch
 
-from djstripe.models import Charge, Customer, Invoice
+from djbraintree.models import Charge, Customer, Invoice
 
 
 FAKE_CHARGE = {
@@ -135,7 +135,7 @@ class ChargeTest(TestCase):
         self.assertEqual("test_description", charge.description)
         self.assertEqual(None, charge.amount_refunded)
 
-    @patch("djstripe.models.Site.objects.get_current")
+    @patch("djbraintree.models.Site.objects.get_current")
     def test_send_receipt_not_sent(self, get_current_mock):
         charge = Charge(receipt_sent=True)
         charge.send_receipt()

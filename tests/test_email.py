@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from mock import patch
 
-from djstripe.models import Customer
+from djbraintree.models import Customer
 
 
 class EmailReceiptTest(TestCase):

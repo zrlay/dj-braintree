@@ -8,8 +8,8 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.utils import timezone
 
-from djstripe.models import Customer, CurrentSubscription
-from djstripe.middleware import SubscriptionPaymentMiddleware
+from djbraintree.models import Customer, CurrentSubscription
+from djbraintree.middleware import SubscriptionPaymentMiddleware
 
 
 class MiddlewareURLTest(TestCase):
@@ -29,7 +29,7 @@ class MiddlewareURLTest(TestCase):
         self.assertEqual(response, None)
 
     def test_namespace(self):
-        request = self.factory.get("/djstripe/")
+        request = self.factory.get("/djbraintree/")
         request.user = self.user
 
         response = self.middleware.process_request(request)
@@ -97,7 +97,7 @@ class MiddlewareLogicTest(TestCase):
         self.middleware = SubscriptionPaymentMiddleware()
 
     def test_anonymous(self):
-        request = self.factory.get("/djstripe/")
+        request = self.factory.get("/djbraintree/")
         request.user = AnonymousUser()
 
         response = self.middleware.process_request(request)
@@ -107,7 +107,7 @@ class MiddlewareLogicTest(TestCase):
         self.user.is_staff = True
         self.user.save()
 
-        request = self.factory.get("/djstripe/")
+        request = self.factory.get("/djbraintree/")
         request.user = self.user
 
         response = self.middleware.process_request(request)
@@ -117,7 +117,7 @@ class MiddlewareLogicTest(TestCase):
         self.user.is_superuser = True
         self.user.save()
 
-        request = self.factory.get("/djstripe/")
+        request = self.factory.get("/djbraintree/")
         request.user = self.user
 
         response = self.middleware.process_request(request)

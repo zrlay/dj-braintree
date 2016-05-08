@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_contrib.test_serializers
-    :synopsis: dj-stripe Serializer Tests.
+.. module:: dj-braintree.tests.test_contrib.test_serializers
+    :synopsis: dj-braintree Serializer Tests.
 
 .. moduleauthor:: Philippe Luickx (@philippeluickx)
 
@@ -15,8 +15,8 @@ from django.utils import timezone
 from django.conf import settings
 
 from mock import patch, PropertyMock
-from djstripe.contrib.rest_framework.serializers import SubscriptionSerializer, CreateSubscriptionSerializer
-from djstripe.models import CurrentSubscription
+from djbraintree.contrib.rest_framework.serializers import SubscriptionSerializer, CreateSubscriptionSerializer
+from djbraintree.models import CurrentSubscription
 
 
 class SubscriptionSerializerTest(TestCase):

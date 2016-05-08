@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_invoiceitem
-   :synopsis: dj-stripe InvoiceItem Model Tests.
+.. module:: dj-braintree.tests.test_invoiceitem
+   :synopsis: dj-braintree InvoiceItem Model Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -8,7 +8,7 @@
 
 from django.test.testcases import TestCase
 
-from djstripe.models import InvoiceItem
+from djbraintree.models import InvoiceItem
 
 
 class InvoiceItemTest(TestCase):

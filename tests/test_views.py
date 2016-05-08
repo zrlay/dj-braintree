@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_views
-   :synopsis: dj-stripe View Tests.
+.. module:: dj-braintree.tests.test_views
+   :synopsis: dj-braintree View Tests.
 
 .. moduleauthor:: Daniel Greenfeld (@pydanny)
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
@@ -17,16 +17,16 @@ from django.test.testcases import TestCase
 import stripe
 from mock import patch, PropertyMock
 
-from djstripe import settings as djstripe_settings
-from djstripe.models import Customer, CurrentSubscription
-from djstripe.views import ChangeCardView, HistoryView
+from djbraintree import settings as djbraintree_settings
+from djbraintree.models import Customer, CurrentSubscription
+from djbraintree.views import ChangeCardView, HistoryView
 
 
 class AccountViewTest(TestCase):
     fake_stripe_customer_id = "cus_xxx1234567890"
 
     def setUp(self):
-        self.url = reverse("djstripe:account")
+        self.url = reverse("djbraintree:account")
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
@@ -48,16 +48,16 @@ class AccountViewTest(TestCase):
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
     def test_plan_list_context(self, stripe_create_customer_mock):
         response = self.client.get(self.url)
-        self.assertEqual(djstripe_settings.PLAN_LIST, response.context["plans"])
+        self.assertEqual(djbraintree_settings.PLAN_LIST, response.context["plans"])
 
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
     def test_subscription_context(self, stripe_create_customer_mock):
         response = self.client.get(self.url)
         self.assertEqual(None, response.context["subscription"])
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test_plan_07"))
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test_plan_07"))
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
-    def test_subscription_context_with_plan(self, djstripe_customer_customer_subscription_mock, stripe_create_customer_mock):
+    def test_subscription_context_with_plan(self, djbraintree_customer_customer_subscription_mock, stripe_create_customer_mock):
         response = self.client.get(self.url)
         self.assertEqual("test_plan_07", response.context["subscription"].plan)
 
@@ -65,7 +65,7 @@ class AccountViewTest(TestCase):
 class ChangeCardViewTest(TestCase):
 
     def setUp(self):
-        self.url = reverse("djstripe:change_card")
+        self.url = reverse("djbraintree:change_card")
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
@@ -76,9 +76,9 @@ class ChangeCardViewTest(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
 
-    @patch("djstripe.models.Customer.retry_unpaid_invoices", autospec=True)
-    @patch("djstripe.models.Customer.send_invoice", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.retry_unpaid_invoices", autospec=True)
+    @patch("djbraintree.models.Customer.send_invoice", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_new_card(self, stripe_customer_mock, update_card_mock, send_invoice_mock, retry_unpaid_invoices_mock):
         self.client.post(self.url, {"stripe_token": "alpha"})
@@ -86,9 +86,9 @@ class ChangeCardViewTest(TestCase):
         send_invoice_mock.assert_called_with(self.user.customer)
         retry_unpaid_invoices_mock.assert_called_once_with(self.user.customer)
 
-    @patch("djstripe.models.Customer.retry_unpaid_invoices", autospec=True)
-    @patch("djstripe.models.Customer.send_invoice", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.retry_unpaid_invoices", autospec=True)
+    @patch("djbraintree.models.Customer.send_invoice", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_change_card(self, stripe_customer_mock, update_card_mock, send_invoice_mock, retry_unpaid_invoices_mock):
         Customer.objects.get_or_create(subscriber=self.user, card_fingerprint="4449")
@@ -100,7 +100,7 @@ class ChangeCardViewTest(TestCase):
         self.assertFalse(send_invoice_mock.called)
         retry_unpaid_invoices_mock.assert_called_once_with(self.user.customer)
 
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_card_error(self, stripe_create_customer_mock, update_card_mock):
         update_card_mock.side_effect = stripe.StripeError("An error occurred while processing your card.")
@@ -110,7 +110,7 @@ class ChangeCardViewTest(TestCase):
         self.assertIn("stripe_error", response.context)
         self.assertIn("An error occurred while processing your card.", response.context["stripe_error"])
 
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_no_card(self, stripe_create_customer_mock, update_card_mock):
         update_card_mock.side_effect = stripe.StripeError("Invalid source object:")
@@ -137,13 +137,13 @@ class ChangeCardViewTest(TestCase):
     def test_get_success_url(self):
         view_instance = ChangeCardView()
         url = view_instance.get_post_success_url()
-        self.assertEqual(reverse("djstripe:account"), url)
+        self.assertEqual(reverse("djbraintree:account"), url)
 
 
 class HistoryViewTest(TestCase):
 
     def setUp(self):
-        self.url = reverse("djstripe:history")
+        self.url = reverse("djbraintree:history")
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
@@ -167,13 +167,13 @@ class HistoryViewTest(TestCase):
 class SyncHistoryViewTest(TestCase):
 
     def setUp(self):
-        self.url = reverse("djstripe:sync_history")
+        self.url = reverse("djbraintree:sync_history")
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
         self.assertTrue(self.client.login(username="testuser", password="123"))
 
-    @patch("djstripe.views.sync_subscriber", new_callable=PropertyMock, return_value=PropertyMock(subscriber="pie"))
+    @patch("djbraintree.views.sync_subscriber", new_callable=PropertyMock, return_value=PropertyMock(subscriber="pie"))
     def test_post(self, sync_subscriber_mock):
         response = self.client.post(self.url)
 
@@ -187,32 +187,32 @@ class ConfirmFormViewTest(TestCase):
 
     def setUp(self):
         self.plan = "test0"
-        self.url = reverse("djstripe:confirm", kwargs={'plan': self.plan})
+        self.url = reverse("djbraintree:confirm", kwargs={'plan': self.plan})
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
         self.assertTrue(self.client.login(username="testuser", password="123"))       
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="something-else"))
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="something-else"))
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
-    def test_get_form_valid(self, djstripe_customer_customer_subscription_mock, stripe_create_customer_mock):
+    def test_get_form_valid(self, djbraintree_customer_customer_subscription_mock, stripe_create_customer_mock):
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test0"))
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test0"))
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
-    def test_get_form_unknown(self, djstripe_customer_customer_subscription_mock, stripe_create_customer_mock):
-        response = self.client.get(reverse("djstripe:confirm", kwargs={'plan': 'does-not-exist'}))
-        self.assertRedirects(response, reverse("djstripe:subscribe"))
+    def test_get_form_unknown(self, djbraintree_customer_customer_subscription_mock, stripe_create_customer_mock):
+        response = self.client.get(reverse("djbraintree:confirm", kwargs={'plan': 'does-not-exist'}))
+        self.assertRedirects(response, reverse("djbraintree:subscribe"))
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test0"))
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test0"))
     @patch("stripe.Customer.create", return_value=PropertyMock(id=fake_stripe_customer_id))
-    def test_get_form_invalid(self, djstripe_customer_customer_subscription_mock, stripe_create_customer_mock):
+    def test_get_form_invalid(self, djbraintree_customer_customer_subscription_mock, stripe_create_customer_mock):
         response = self.client.get(self.url)
-        self.assertRedirects(response, reverse("djstripe:subscribe"))
+        self.assertRedirects(response, reverse("djbraintree:subscribe"))
 
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_valid(self, stripe_customer_mock, update_card_mock, subscribe_mock):
         self.assertEqual(0, Customer.objects.count())
@@ -221,10 +221,10 @@ class ConfirmFormViewTest(TestCase):
         update_card_mock.assert_called_once_with(self.user.customer, "cake")
         subscribe_mock.assert_called_once_with(self.user.customer, self.plan)
 
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_post_no_card(self, stripe_customer_mock, update_card_mock, subscribe_mock):
         update_card_mock.side_effect = stripe.StripeError("Invalid source object:")
@@ -246,7 +246,7 @@ class ChangePlanViewTest(TestCase):
 
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890_01"))
     def setUp(self, stripe_customer_mock):
-        self.url = reverse("djstripe:change_plan")
+        self.url = reverse("djbraintree:change_plan")
         self.user1 = get_user_model().objects.create_user(username="testuser1",
                                                          email="test@example.com",
                                                          password="123")
@@ -272,56 +272,56 @@ class ChangePlanViewTest(TestCase):
         self.assertIn("form", response.context)
         self.assertIn("You must already be subscribed to a plan before you can change it.", response.context["form"].errors["__all__"])
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_no_proration(self, subscribe_mock, current_subscription_mock):
         self.assertTrue(self.client.login(username="testuser1", password="123"))
         response = self.client.post(self.url, {"plan": "test0"})
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
         subscribe_mock.assert_called_once_with(self.user1.customer, "test0")
 
-    @patch("djstripe.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_with_proration_downgrade(self, subscribe_mock, current_subscription_mock, proration_policy_mock):
         self.assertTrue(self.client.login(username="testuser1", password="123"))
         response = self.client.post(self.url, {"plan": "test0"})
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
         subscribe_mock.assert_called_once_with(self.user1.customer, "test0")
 
-    @patch("djstripe.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_with_proration_upgrade(self, subscribe_mock, current_subscription_mock, proration_policy_mock):
         self.assertTrue(self.client.login(username="testuser1", password="123"))
 
         response = self.client.post(self.url, {"plan": "test2"})
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
         subscribe_mock.assert_called_once_with(self.user1.customer, "test2", prorate=True)
 
-    @patch("djstripe.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.views.PRORATION_POLICY_FOR_UPGRADES", return_value=True)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_with_proration_same_plan(self, subscribe_mock, current_subscription_mock, proration_policy_mock):
         self.assertTrue(self.client.login(username="testuser1", password="123"))
         response = self.client.post(self.url, {"plan": "test"})
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
         subscribe_mock.assert_called_once_with(self.user1.customer, "test")
 
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00)))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_same_plan(self, subscribe_mock, current_subscription_mock):
         self.assertTrue(self.client.login(username="testuser1", password="123"))
         response = self.client.post(self.url, {"plan": "test"})
-        self.assertRedirects(response, reverse("djstripe:history"))
+        self.assertRedirects(response, reverse("djbraintree:history"))
 
         subscribe_mock.assert_called_once_with(self.user1.customer, "test")
 
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_change_sub_stripe_error(self, subscribe_mock):
         subscribe_mock.side_effect = stripe.StripeError("No such plan: test_id_3")
 
@@ -335,28 +335,28 @@ class ChangePlanViewTest(TestCase):
 
 class CancelSubscriptionViewTest(TestCase):
     def setUp(self):
-        self.url = reverse("djstripe:cancel_subscription")
+        self.url = reverse("djbraintree:cancel_subscription")
         self.user = get_user_model().objects.create_user(username="testuser",
                                                          email="test@example.com",
                                                          password="123")
         self.assertTrue(self.client.login(username="testuser", password="123"))
 
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
-    @patch("djstripe.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_ACTIVE))
+    @patch("djbraintree.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_ACTIVE))
     def test_cancel_proration(self, cancel_subscription_mock, stripe_create_customer_mock):
         response = self.client.post(self.url)
 
-        cancel_subscription_mock.assert_called_once_with(at_period_end=djstripe_settings.CANCELLATION_AT_PERIOD_END)
-        self.assertRedirects(response, reverse("djstripe:account"))
+        cancel_subscription_mock.assert_called_once_with(at_period_end=djbraintree_settings.CANCELLATION_AT_PERIOD_END)
+        self.assertRedirects(response, reverse("djbraintree:account"))
         self.assertTrue(self.user.is_authenticated())
 
-    @patch("djstripe.views.auth_logout", autospec=True)
+    @patch("djbraintree.views.auth_logout", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
-    @patch("djstripe.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_CANCELLED))
+    @patch("djbraintree.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_CANCELLED))
     def test_cancel_no_proration(self, cancel_subscription_mock, stripe_create_customer_mock, logout_mock):
         response = self.client.post(self.url)
 
-        cancel_subscription_mock.assert_called_once_with(at_period_end=djstripe_settings.CANCELLATION_AT_PERIOD_END)
+        cancel_subscription_mock.assert_called_once_with(at_period_end=djbraintree_settings.CANCELLATION_AT_PERIOD_END)
         self.assertEqual(response.status_code, 302)
 
         self.assertTrue(logout_mock.called)

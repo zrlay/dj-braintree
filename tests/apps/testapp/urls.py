@@ -13,9 +13,9 @@ urlpatterns = [
         empty_view,
         name="test_url_name"
     ),
-    url(r"^djstripe/", include('djstripe.urls', namespace="djstripe")),
+    url(r"^djbraintree/", include('djbraintree.urls', namespace="djbraintree")),
     url(
-        r"^rest_djstripe/",
-        include('djstripe.contrib.rest_framework.urls', namespace="rest_djstripe")
+        r"^rest_djbraintree/",
+        include('djbraintree.contrib.rest_framework.urls', namespace="rest_djbraintree")
     ),
 ]

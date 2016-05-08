@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_transfer
-   :synopsis: dj-stripe Transfer Model Tests.
+.. module:: dj-braintree.tests.test_transfer
+   :synopsis: dj-braintree Transfer Model Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -12,7 +12,7 @@ from django.test.testcases import TestCase
 
 from mock import patch, PropertyMock
 
-from djstripe.models import Event, Transfer
+from djbraintree.models import Event, Transfer
 
 
 TRANSFER_CREATED_TEST_DATA = {

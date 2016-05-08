@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_admin
-   :synopsis: dj-stripe Admin Tests.
+.. module:: dj-braintree.tests.test_admin
+   :synopsis: dj-braintree Admin Tests.
 
 .. moduleauthor:: Oleksandr (@nanvel)
 

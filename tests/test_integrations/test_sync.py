@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_integrations.test_sync
-   :synopsis: dj-stripe Sync Method Tests.
+.. module:: dj-braintree.tests.test_integrations.test_sync
+   :synopsis: dj-braintree Sync Method Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -12,8 +12,8 @@ from django.conf import settings
 from django.test.testcases import TestCase
 from django.contrib.auth import get_user_model
 
-from djstripe.models import Charge
-from djstripe.sync import sync_subscriber
+from djbraintree.models import Charge
+from djbraintree.sync import sync_subscriber
 from unittest.case import skip
 
 # These tests will be converted to sync tests on the customer model

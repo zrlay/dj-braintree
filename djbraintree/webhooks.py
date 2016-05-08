@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: djstripe.webhooks
-   :synopsis: dj-stripe - Utils related to processing or registering for webhooks
+.. module:: djbraintree.webhooks
+   :synopsis: dj-braintree - Utils related to processing or registering for webhooks
 
 .. moduleauthor:: Bill Huneke (@wahuneke)
 

@@ -1,12 +1,12 @@
-{% extends "djstripe/base.html" %}
-{% load static djstripe_tags %}
+{% extends "djbraintree/base.html" %}
+{% load static djbraintree_tags %}
 
 {% block title %}Choose a Subscription{% endblock title %}
 
 {% block content %}
 {{ block.super }}
 <ul class="breadcrumb">
-  <li><a href="{% url 'djstripe:account' %}">Home</a></li>
+  <li><a href="{% url 'djbraintree:account' %}">Home</a></li>
   <li class="active">Subscription</li>
 </ul>
 <h2>Choose a Subscription</h2>
@@ -26,7 +26,7 @@
             {% if customer.current_subscription.plan == plan.plan and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED %}
             <div class="btn btn-default disabled">
             {% else %}
-            <a class="btn btn-primary" href="{% url 'djstripe:confirm' plan=plan.plan %}" role="button">
+            <a class="btn btn-primary" href="{% url 'djbraintree:confirm' plan=plan.plan %}" role="button">
             {% endif %}
                   {% with image=plan.image|default:"img/default-plan-image.png" %}
                     <img src="{% static image %}" class="img-thumbnail" />

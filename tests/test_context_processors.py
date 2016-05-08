@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_context_processors
-   :synopsis: dj-stripe Context Processor Tests.
+.. module:: dj-braintree.tests.test_context_processors
+   :synopsis: dj-braintree Context Processor Tests.
 
    NOTE: This file will be removed along with the deprecated context_processor.
 
@@ -19,5 +19,5 @@ class TestDeprecationWarning(AssertWarnsEnabledTestCase):
 
     def test_deprecation(self):
         with self.assertWarns(DeprecationWarning):
-            from djstripe.context_processors import djstripe_settings
-            djstripe_settings(None)
+            from djbraintree.context_processors import djbraintree_settings
+            djbraintree_settings(None)

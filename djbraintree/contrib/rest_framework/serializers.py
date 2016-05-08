@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: dj-stripe.contrib.rest_framework.serializers
-    :synopsis: dj-stripe Serializer for Subscription.
+.. module:: dj-braintree.contrib.rest_framework.serializers
+    :synopsis: dj-braintree Serializer for Subscription.
 
 .. moduleauthor:: Philippe Luickx (@philippeluickx)
 
@@ -10,7 +10,7 @@
 from __future__ import unicode_literals
 
 from rest_framework.serializers import ModelSerializer
-from djstripe.models import CurrentSubscription
+from djbraintree.models import CurrentSubscription
 from rest_framework import serializers
 
 

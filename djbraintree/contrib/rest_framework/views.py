@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: dj-stripe.contrib.rest_framework.views
-    :synopsis: dj-stripe REST views for Subscription.
+.. module:: dj-braintree.contrib.rest_framework.views
+    :synopsis: dj-braintree REST views for Subscription.
 
 .. moduleauthor:: Philippe Luickx (@philippeluickx)
 

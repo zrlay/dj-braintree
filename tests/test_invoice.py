@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_invoice
-   :synopsis: dj-stripe Invoice Model Tests.
+.. module:: dj-braintree.tests.test_invoice
+   :synopsis: dj-braintree Invoice Model Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -14,9 +14,9 @@ from django.test.testcases import TestCase
 from django.utils import timezone
 
 from mock import patch
-from djstripe.event_handlers import invoice_webhook_handler
+from djbraintree.event_handlers import invoice_webhook_handler
 
-from djstripe.models import Customer, Invoice, Charge, Event
+from djbraintree.models import Customer, Invoice, Charge, Event
 
 
 FAKE_INVOICE = {
@@ -191,8 +191,8 @@ class InvoiceTest(TestCase):
 
         self.assertEqual("", invoice_item.plan)
 
-    @patch("djstripe.models.Charge.send_receipt")
-    @patch("djstripe.models.Customer.record_charge")
+    @patch("djbraintree.models.Charge.send_receipt")
+    @patch("djbraintree.models.Customer.record_charge")
     def test_sync_from_stripe_data_with_charge(self, record_charge_mock, send_receipt_mock):
         record_charge_mock.return_value = Charge(customer=self.customer)
 
@@ -207,8 +207,8 @@ class InvoiceTest(TestCase):
         record_charge_mock.assert_called_once_with("taco")
         send_receipt_mock.assert_called_once_with()
 
-    @patch("djstripe.models.Charge.send_receipt")
-    @patch("djstripe.models.Customer.record_charge", return_value=Charge())
+    @patch("djbraintree.models.Charge.send_receipt")
+    @patch("djbraintree.models.Customer.record_charge", return_value=Charge())
     def test_sync_from_stripe_data_with_charge_no_receipt(self, record_charge_mock, send_receipt_mock):
         record_charge_mock.return_value = Charge(customer=self.customer)
 
@@ -223,7 +223,7 @@ class InvoiceTest(TestCase):
         record_charge_mock.assert_called_once_with("taco1")
         self.assertFalse(send_receipt_mock.called)
 
-    @patch("djstripe.models.Invoice.sync_from_stripe_data")
+    @patch("djbraintree.models.Invoice.sync_from_stripe_data")
     @patch("stripe.Invoice.retrieve", return_value="lock")
     def test_handle_event_payment_failed(self, invoice_retrieve_mock, sync_invoice_mock):
         fake_event = Event(kind="invoice.payment_failed", validated_message={"data": {"object": {"id": "door"}}})
@@ -233,7 +233,7 @@ class InvoiceTest(TestCase):
         invoice_retrieve_mock.assert_called_once_with("door")
         sync_invoice_mock.assert_called_once_with("lock", send_receipt=True)
 
-    @patch("djstripe.models.Invoice.sync_from_stripe_data")
+    @patch("djbraintree.models.Invoice.sync_from_stripe_data")
     @patch("stripe.Invoice.retrieve", return_value="key")
     def test_handle_event_payment_succeeded(self, invoice_retrieve_mock, sync_invoice_mock):
         fake_event = Event(kind="invoice.payment_succeeded", validated_message={"data": {"object": {"id": "lock"}}})

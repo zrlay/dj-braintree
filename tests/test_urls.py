@@ -14,8 +14,8 @@ def empty_view(request):
 urlpatterns = [
     url(r'^home/', empty_view, name="home"),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^djstripe/', include('djstripe.urls',
-            namespace="djstripe", app_name="djstripe")),
+    url(r'^djbraintree/', include('djbraintree.urls',
+            namespace="djbraintree", app_name="djbraintree")),
     url(r'^testapp/', include('tests.apps.testapp.urls')),
     url(r'^__debug__/', include('tests.apps.testapp.urls')),
     url(

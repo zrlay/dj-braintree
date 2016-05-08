@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: djstripe.event_handlers
-   :synopsis: dj-stripe - webhook event handlers for the various models
+.. module:: djbraintree.event_handlers
+   :synopsis: dj-braintree - webhook event handlers for the various models
 
 .. moduleauthor:: Bill Huneke (@wahuneke)
 
@@ -11,7 +11,7 @@ Implement webhook event handlers for all the models that need to respond to webh
 from django.utils import timezone
 
 from . import webhooks
-from . import settings as djstripe_settings
+from . import settings as djbraintree_settings
 import stripe
 from .models import Customer, CurrentSubscription, Charge, Transfer, Invoice
 
@@ -69,7 +69,7 @@ def invoice_webhook_handler(event, event_data, event_type, event_subtype):
     if event_subtype in ["payment_failed", "payment_succeeded", "created"]:
         invoice_data = event_data["object"]
         stripe_invoice = stripe.Invoice.retrieve(invoice_data["id"])
-        Invoice.sync_from_stripe_data(stripe_invoice, send_receipt=djstripe_settings.SEND_INVOICE_RECEIPT_EMAILS)
+        Invoice.sync_from_stripe_data(stripe_invoice, send_receipt=djbraintree_settings.SEND_INVOICE_RECEIPT_EMAILS)
 
 
 # ---------------------------

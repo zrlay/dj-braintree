@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_event_processing_exception
-   :synopsis: dj-stripe EventProcessingException Model Tests.
+.. module:: dj-braintree.tests.test_event_processing_exception
+   :synopsis: dj-braintree EventProcessingException Model Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -10,7 +10,7 @@ from copy import deepcopy
 
 from django.test import TestCase
 
-from djstripe.models import EventProcessingException, Event
+from djbraintree.models import EventProcessingException, Event
 
 
 class TestEventProcessingException(TestCase):

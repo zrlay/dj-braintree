@@ -1,4 +1,4 @@
-# dj-stripe requirements
+# dj-braintree requirements
 -r requirements.txt
 
 # Testing tools

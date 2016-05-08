@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_sync
-   :synopsis: dj-stripe Sync Method Tests.
+.. module:: dj-braintree.tests.test_sync
+   :synopsis: dj-braintree Sync Method Tests.
 
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
 
@@ -15,7 +15,7 @@ import stripe
 from stripe import api_key
 from mock import patch, PropertyMock
 
-from djstripe.sync import sync_subscriber, sync_plans
+from djbraintree.sync import sync_subscriber, sync_plans
 
 
 class TestSyncSubscriber(TestCase):
@@ -26,11 +26,11 @@ class TestSyncSubscriber(TestCase):
                                                          email="test@example.com",
                                                          password="123")
 
-    @patch("djstripe.models.Customer.sync_charges")
-    @patch("djstripe.models.Customer.sync_invoices")
-    @patch("djstripe.models.Customer.sync_current_subscription")
-    @patch("djstripe.models.Customer.sync")
-    @patch("djstripe.models.Customer.stripe_customer", new_callable=PropertyMock, return_value=fake_stripe_customer)
+    @patch("djbraintree.models.Customer.sync_charges")
+    @patch("djbraintree.models.Customer.sync_invoices")
+    @patch("djbraintree.models.Customer.sync_current_subscription")
+    @patch("djbraintree.models.Customer.sync")
+    @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock, return_value=fake_stripe_customer)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_sync_success(self, stripe_customer_create_mock, stripe_customer_mock,
                           sync_mock, sync_current_subscription_mock, sync_invoices_mock,
@@ -43,8 +43,8 @@ class TestSyncSubscriber(TestCase):
         sync_invoices_mock.assert_called_once_with(cu=self.fake_stripe_customer)
         sync_charges_mock.assert_called_once_with(cu=self.fake_stripe_customer)
 
-    @patch("djstripe.models.Customer.sync")
-    @patch("djstripe.models.Customer.stripe_customer", new_callable=PropertyMock, return_value="test_stripe_customer")
+    @patch("djbraintree.models.Customer.sync")
+    @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock, return_value="test_stripe_customer")
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_sync_fail(self, stripe_customer_create_mock, stripe_customer_mock, sync_mock):
         sync_mock.side_effect = stripe.InvalidRequestError("No such customer:", "blah")

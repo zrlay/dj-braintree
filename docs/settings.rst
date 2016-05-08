@@ -117,7 +117,7 @@ Use:
 
 .. code-block:: python
 
-    {% <plan_name>|djstripe_plan_level %}
+    {% <plan_name>|djbraintree_plan_level %}
 
 Example:
 
@@ -125,16 +125,16 @@ Example:
 
     {% elif customer.current_subscription.plan == plan.plan %}
         <h4>Your Current Plan</h4>
-    {% elif customer.current_subscription|djstripe_plan_level < plan.plan|djstripe_plan_level %}
+    {% elif customer.current_subscription|djbraintree_plan_level < plan.plan|djbraintree_plan_level %}
         <h4>Upgrade</h4>
-    {% elif customer.current_subscription|djstripe_plan_level > plan.plan|djstripe_plan_level %}
+    {% elif customer.current_subscription|djbraintree_plan_level > plan.plan|djbraintree_plan_level %}
         <h4>Downgrade</h4>
     {% endif %}
     
 DJSTRIPE_PRORATION_POLICY (=False)
 ====================================
 
-By default, plans are not prorated in dj-stripe. Concretely, this is how this translates: 
+By default, plans are not prorated in dj-braintree. Concretely, this is how this translates:
 
 1) If a customer cancels their plan during a trial, the cancellation is effective right away.
 2) If a customer cancels their plan outside of a trial, their subscription remains active until the subscription's period end, and they do not receive a refund.
@@ -147,19 +147,19 @@ DJSTRIPE_PRORATION_POLICY_FOR_UPGRADES (=False)
 
 By default, the plan change policy described in item 3 above holds also for plan upgrades.
 
-Assigning ``True`` to ``DJSTRIPE_PRORATION_POLICY_FOR_UPGRADES`` allows dj-stripe to prorate plans in the specific case of an upgrade. Therefore, if a customer upgrades their plan, their new plan is effective right away, and they get billed for the new plan's amount minus the unused balance from their previous plan.
+Assigning ``True`` to ``DJSTRIPE_PRORATION_POLICY_FOR_UPGRADES`` allows dj-braintree to prorate plans in the specific case of an upgrade. Therefore, if a customer upgrades their plan, their new plan is effective right away, and they get billed for the new plan's amount minus the unused balance from their previous plan.
 
 DJSTRIPE_SEND_INVOICE_RECEIPT_EMAILS (=True)
 =============================================
 
-By default dj-stripe sends emails for each receipt. You can turn this off by
+By default dj-braintree sends emails for each receipt. You can turn this off by
 setting this value to ``False``.
 
 
 DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS (=())
 ======================================================
 
-Used by ``djstripe.middleware.SubscriptionPaymentMiddleware``
+Used by ``djbraintree.middleware.SubscriptionPaymentMiddleware``
 
 Rules:
 
@@ -167,7 +167,7 @@ Rules:
 * "[namespace]" means everything with this name is exempt
 * "namespace:name" means this namespaced URL is exempt
 * "name" means this URL is exempt
-* The entire djstripe namespace is exempt
+* The entire djbraintree namespace is exempt
 * If settings.DEBUG is True, then django-debug-toolbar is exempt
 
 Example:
@@ -189,15 +189,15 @@ Example:
         url(r'^accounts/', include('allauth.urls',  app_name="allauth")),
 
 
-DJSTRIPE_SUBSCRIBER_MODEL (=settings.AUTH_USER_MODEL)
+DJBRAINTREE_PAYER_MODEL (=settings.AUTH_USER_MODEL)
 ======================================================
 
 If the AUTH_USER_MODEL doesn't represent the object your application's subscription holder, you may define a subscriber model to use here. It should be a string in the form of 'app.model'.
 
 Rules:
 
-* DJSTRIPE_SUBSCRIBER_MODEL must have an ``email`` field. If your existing model has no email field, add an email property that defines an email address to use.
-* You must also implement ``DJSTRIPE_SUBSCRIBER_MODEL_REQUEST_CALLBACK``.
+* DJBRAINTREE_PAYER_MODEL must have an ``email`` field. If your existing model has no email field, add an email property that defines an email address to use.
+* You must also implement ``DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK``.
 
 Example Model:
 
@@ -213,16 +213,16 @@ Example Model:
             return self.owner.email
 
 
-DJSTRIPE_SUBSCRIBER_MODEL_MIGRATION_DEPENDENCY (="__first__")
+DJBRAINTREE_PAYER_MODEL_MIGRATION_DEPENDENCY (="__first__")
 =================================================================
-If the model referenced in DJSTRIPE_SUBSCRIBER_MODEL is not created in the ``__first__`` migration of an app you can specify the migration name to depend on here. For example: "0003_here_the_subscriber_model_was_added"
+If the model referenced in DJBRAINTREE_PAYER_MODEL is not created in the ``__first__`` migration of an app you can specify the migration name to depend on here. For example: "0003_here_the_subscriber_model_was_added"
 
 
-DJSTRIPE_SUBSCRIBER_MODEL_REQUEST_CALLBACK (=None)
+DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK (=None)
 ======================================================
 
 If you choose to use a custom subscriber model, you'll need a way to pull it from ``request``. That's where this callback comes in.
-It must be a callable that takes a request object and returns an instance of DJSTRIPE_SUBSCRIBER_MODEL
+It must be a callable that takes a request object and returns an instance of DJBRAINTREE_PAYER_MODEL
 
 Examples:
 
@@ -254,12 +254,12 @@ Examples:
         return Organization.objects.get(id=request.organization_id)
 
 
-.. note:: This callback only becomes active when ``DJSTRIPE_SUBSCRIBER_MODEL`` is set.
+.. note:: This callback only becomes active when ``DJBRAINTREE_PAYER_MODEL`` is set.
 
 DJSTRIPE_TRIAL_PERIOD_FOR_SUBSCRIBER_CALLBACK (=None)
 ======================================================
 
-Used by ``djstripe.models.Customer`` only when creating stripe customers.
+Used by ``djbraintree.models.Customer`` only when creating stripe customers.
 
 This is called to dynamically add a trial period to a subscriber's plan. It must be a callable that takes a subscriber object and returns the number of days the trial period should last.
 

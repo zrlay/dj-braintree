@@ -13,7 +13,7 @@ TESTS_THRESHOLD = 100
 
 
 def main():
-    parser = ArgumentParser(description='Run the dj-stripe Test Suite.')
+    parser = ArgumentParser(description='Run the dj-braintree Test Suite.')
     parser.add_argument("--skip-utc", action="store_true", help="Skip any tests that require the system timezone to be in UTC.")
     parser.add_argument("--no-coverage", action="store_true", help="Disable checking for 100% code coverage (Not advised).")
     parser.add_argument("--no-pep8", action="store_true", help="Disable checking for pep8 errors (Not advised).")
@@ -40,7 +40,7 @@ def run_test_suite(args):
         DATABASES={
             "default": {
                 "ENGINE": "django.db.backends.postgresql_psycopg2",
-                "NAME": "djstripe",
+                "NAME": "djbraintree",
                 "USER": "",
                 "PASSWORD": "",
                 "HOST": "",
@@ -55,7 +55,7 @@ def run_test_suite(args):
             "django.contrib.sessions",
             "django.contrib.sites",
             "jsonfield",
-            "djstripe",
+            "djbraintree",
             "tests",
             "tests.apps.testapp"
         ],
@@ -155,7 +155,7 @@ def run_test_suite(args):
 
     # Announce the test suite
     sys.stdout.write(colored(text="\nWelcome to the ", color="magenta", attrs=["bold"]))
-    sys.stdout.write(colored(text="dj-stripe", color="green", attrs=["bold"]))
+    sys.stdout.write(colored(text="dj-braintree", color="green", attrs=["bold"]))
     sys.stdout.write(colored(text=" test suite.\n\n", color="magenta", attrs=["bold"]))
 
     # Announce test run

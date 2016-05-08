@@ -1,13 +1,13 @@
-{% extends "djstripe/base.html" %}
-{% load static djstripe_tags %}
+{% extends "djbraintree/base.html" %}
+{% load static djbraintree_tags %}
 
 {% block title %}Choose a Subscription{% endblock title %}
 
 {% block content %}
 {{ block.super }}
 <ul class="breadcrumb">
-    <li><a href="{% url 'djstripe:account' %}">Home</a></li>
-    <li><a href="{% url 'djstripe:subscribe' %}">Subscription</a></li>
+    <li><a href="{% url 'djbraintree:account' %}">Home</a></li>
+    <li><a href="{% url 'djbraintree:subscribe' %}">Subscription</a></li>
     <li class="active">Confirm</li>
 </ul>
 <h2>Confirm your Subscription</h2>
@@ -22,14 +22,14 @@
     <div class="col-xs-12">
         <form
         {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
-            action="{% url 'djstripe:confirm' plan=plan.plan %}" class="djstripe-subscribe"
+            action="{% url 'djbraintree:confirm' plan=plan.plan %}" class="djbraintree-subscribe"
             data-key="{{ STRIPE_PUBLIC_KEY }}"
             data-amount="{{ plan.price }}"
             data-name="{{ plan.name }}"
             data-description="{{ plan.description }}"
         {% else %}
             data-stripe-key="{{ STRIPE_PUBLIC_KEY }}"
-            action="{% url 'djstripe:change_plan' %}" class="djstripe-change-plan"
+            action="{% url 'djbraintree:change_plan' %}" class="djbraintree-change-plan"
         {% endif %}
         method="POST">
 
@@ -65,9 +65,9 @@
 <script src="https://checkout.stripe.com/v2/checkout.js"></script>
 <script text="text/javascript">
     $(function() {
-        $('body').on("click", '.djstripe-subscribe button[type=submit]', function(e) {
+        $('body').on("click", '.djbraintree-subscribe button[type=submit]', function(e) {
             e.preventDefault();
-            // retrieve current $(".djstripe-subscribe")
+            // retrieve current $(".djbraintree-subscribe")
             var $form = $(e.target).parents('form'),
             token = function(res) {
                 $form.find("input[name=stripe_token]").val(res.id);
@@ -85,7 +85,7 @@
             return false;
         });
         {% if PLAN_LIST|length > 1 %}
-        $('.djstripe-change-plan').click(function(e){
+        $('.djbraintree-change-plan').click(function(e){
             $("button[type=submit]").attr("disabled", "true");
             $('#in-progress').modal({"keyboard": false})
             $('.progress-bar').animate({width:'+=100%'}, 2000);

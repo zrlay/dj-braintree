@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_utils
-   :synopsis: dj-stripe Utilities Tests.
+.. module:: dj-braintree.tests.test_utils
+   :synopsis: dj-braintree Utilities Tests.
 
 .. moduleauthor:: Daniel Greenfeld (@pydanny)
 .. moduleauthor:: Alex Kavanaugh (@kavdev)
@@ -18,8 +18,8 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 
-from djstripe.models import convert_tstamp, Customer, CurrentSubscription
-from djstripe.utils import subscriber_has_active_subscription, get_supported_currency_choices
+from djbraintree.models import convert_tstamp, Customer, CurrentSubscription
+from djbraintree.utils import subscriber_has_active_subscription, get_supported_currency_choices
 
 from unittest.case import SkipTest
 from unittest2 import TestCase as AssertWarnsEnabledTestCase
@@ -48,7 +48,7 @@ class TestDeprecationWarning(AssertWarnsEnabledTestCase):
 
     def test_deprecation(self):
         with self.assertWarns(DeprecationWarning):
-            from djstripe.utils import user_has_active_subscription
+            from djbraintree.utils import user_has_active_subscription
             user_has_active_subscription(self.user)
 
 

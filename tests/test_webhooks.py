@@ -8,7 +8,7 @@ from django.test.client import Client
 
 from mock import patch
 
-from djstripe.models import Event, EventProcessingException, Transfer
+from djbraintree.models import Event, EventProcessingException, Transfer
 from tests.test_transfer import TRANSFER_CREATED_TEST_DATA
 
 
@@ -64,7 +64,7 @@ class TestWebhook(TestCase):
         StripeEventMock.return_value.to_dict.return_value = data
         msg = json.dumps(data)
         resp = Client().post(
-            reverse("djstripe:webhook"),
+            reverse("djbraintree:webhook"),
             msg,
             content_type="application/json"
         )
@@ -121,7 +121,7 @@ class TestWebhook(TestCase):
         StripeEventMock.return_value.to_dict.return_value = data
         msg = json.dumps(data)
         resp = Client().post(
-            reverse("djstripe:webhook"),
+            reverse("djbraintree:webhook"),
             msg,
             content_type="application/json"
         )
@@ -131,7 +131,7 @@ class TestWebhook(TestCase):
 
         # Duplication
         resp = Client().post(
-            reverse("djstripe:webhook"),
+            reverse("djbraintree:webhook"),
             msg,
             content_type="application/json"
         )

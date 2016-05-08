@@ -3,9 +3,9 @@ import warnings
 
 from django import get_version as get_django_version
 
-__title__ = "dj-stripe"
+__title__ = "dj-braintree"
 __summary__ = "Django + Stripe Made Easy"
-__uri__ = "https://github.com/pydanny/dj-stripe/"
+__uri__ = "https://github.com/pydanny/dj-braintree/"
 
 __version__ = "0.9.0.dev"
 
@@ -17,7 +17,7 @@ __license__ = "License :: OSI Approved :: BSD License"
 __copyright__ = "Copyright 2015 Daniel Greenfeld"
 
 if get_django_version() <= '1.7.x':
-    msg = "dj-stripe deprecation notice: Django 1.7 and lower are no longer\n" \
+    msg = "dj-braintree deprecation notice: Django 1.7 and lower are no longer\n" \
         "supported. Please upgrade to Django 1.8 or higher.\n" \
-        "Reference: https://github.com/pydanny/dj-stripe/issues/275"
+        "Reference: https://github.com/pydanny/dj-braintree/issues/275"
     warnings.warn(msg)

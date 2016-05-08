@@ -10,7 +10,7 @@ Nearly every project breaks payment types into two broad categories, and will su
 Ongoing Subscriptions
 =====================
 
-dj-stripe provides three methods to support ongoing subscriptions:
+dj-braintree provides three methods to support ongoing subscriptions:
 
 * Middleware approach to constrain entire projects easily.
 * Class-Based View mixin to constrain individual views.
@@ -18,7 +18,7 @@ dj-stripe provides three methods to support ongoing subscriptions:
 
 .. warning:: **anonymous** users always raise a ``ImproperlyConfigured`` exception.
 
-     When **anonymous** users encounter these components they will raise a ``django.core.exceptions.ImproperlyConfigured`` exception. This is done because dj-stripe is not an authentication system, so it does a hard error to make it easier for you to catch where content may not be behind authentication systems.
+     When **anonymous** users encounter these components they will raise a ``django.core.exceptions.ImproperlyConfigured`` exception. This is done because dj-braintree is not an authentication system, so it does a hard error to make it easier for you to catch where content may not be behind authentication systems.
 
 Any project can use one or more of these methods to control access.
 
@@ -26,15 +26,15 @@ Any project can use one or more of these methods to control access.
 Constraining Entire Sites
 -------------------------
 
-If you want to quickly constrain an entire site, the ``djstripe.middleware.SubscriptionPaymentMiddleware`` middleware does the following to user requests:
+If you want to quickly constrain an entire site, the ``djbraintree.middleware.SubscriptionPaymentMiddleware`` middleware does the following to user requests:
 
-* **authenticated** users are redirected to ``djstripe.views.SubscribeFormView`` unless they:
+* **authenticated** users are redirected to ``djbraintree.views.SubscribeFormView`` unless they:
 
     * have a valid subscription --or--
     * are superusers (user.is_superuser==True) --or--
     * are staff members (user.is_staff==True).
 
-* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-stripe is not an authentication system.
+* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-braintree is not an authentication system.
 
 ----
 
@@ -46,7 +46,7 @@ Step 1: Add the middleware:
 
     MIDDLEWARE_CLASSES = (
         ...
-        'djstripe.middleware.SubscriptionPaymentMiddleware',
+        'djbraintree.middleware.SubscriptionPaymentMiddleware',
         ...
         )
 
@@ -55,18 +55,18 @@ Step 2: Specify exempt URLS:
 .. code-block:: python
 
     # sample only - customize to your own needs!
-    # djstripe pages are automatically exempt!
+    # djbraintree pages are automatically exempt!
     DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
         'home',
         'about',
         "[spam]",  # Anything in the dj-spam namespace
     )
 
-Using this example any request on this site that isn't on the homepage, about, spam, or djstripe pages is redirected to ``djstripe.views.SubscribeFormView``.
+Using this example any request on this site that isn't on the homepage, about, spam, or djbraintree pages is redirected to ``djbraintree.views.SubscribeFormView``.
 
 .. note::
 
-    The extensive list of rules for this feature can be found at https://github.com/pydanny/dj-stripe/blob/master/djstripe/middleware.py.
+    The extensive list of rules for this feature can be found at https://github.com/pydanny/dj-braintree/blob/master/djbraintree/middleware.py.
 
 .. seealso::
 
@@ -75,15 +75,15 @@ Using this example any request on this site that isn't on the homepage, about, s
 Constraining Class-Based Views
 ------------------------------
 
-If you want to quickly constrain a single Class-Based View, the ``djstripe.decorators.subscription_payment_required`` decorator does the following to user requests:
+If you want to quickly constrain a single Class-Based View, the ``djbraintree.decorators.subscription_payment_required`` decorator does the following to user requests:
 
-* **authenticated** users are redirected to ``djstripe.views.SubscribeFormView`` unless they:
+* **authenticated** users are redirected to ``djbraintree.views.SubscribeFormView`` unless they:
 
     * have a valid subscription --or--
     * are superusers (user.is_superuser==True) --or--
     * are staff members (user.is_staff==True).
 
-* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-stripe is not an authentication system.
+* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-braintree is not an authentication system.
 
 ----
 
@@ -97,7 +97,7 @@ If you want to quickly constrain a single Class-Based View, the ``djstripe.decor
     from django.contrib.auth.decorators import login_required
 
     # import the wonderful decorator
-    from djstripe.decorators import subscription_payment_required
+    from djbraintree.decorators import subscription_payment_required
 
     # import method_decorator which allows us to use function
     # decorators on Class-Based View dispatch function.
@@ -121,15 +121,15 @@ If you are unfamiliar with this technique please read the following documentatio
 Constraining Function-Based Views
 ---------------------------------
 
-If you want to quickly constrain a single Function-Based View, the ``djstripe.decorators.subscription_payment_required`` decorator does the following to user requests:
+If you want to quickly constrain a single Function-Based View, the ``djbraintree.decorators.subscription_payment_required`` decorator does the following to user requests:
 
-* **authenticated** users are redirected to ``djstripe.views.SubscribeFormView`` unless they:
+* **authenticated** users are redirected to ``djbraintree.views.SubscribeFormView`` unless they:
 
     * have a valid subscription --or--
     * are superusers (user.is_superuser==True) --or--
     * are staff members (user.is_staff==True).
 
-* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-stripe is not an authentication system.
+* **anonymous** users always raise a ``django.core.exceptions.ImproperlyConfigured`` exception when they encounter these systems. This is done because dj-braintree is not an authentication system.
 
 ----
 
@@ -142,7 +142,7 @@ If you want to quickly constrain a single Function-Based View, the ``djstripe.de
     from django.http import HttpResponse
 
     # import the wonderful decorator
-    from djstripe.decorators import subscription_payment_required
+    from djbraintree.decorators import subscription_payment_required
 
     @login_required
     @subscription_payment_required
@@ -160,7 +160,7 @@ Described is an anti-pattern. View logic belongs in views.py, not urls.py.
     # DON'T DO THIS!!!
     from django.conf.urls import patterns, url
     from django.contrib.auth.decorators import login_required
-    from djstripe.decorators import subscription_payment_required
+    from djbraintree.decorators import subscription_payment_required
 
     from contents import views
 

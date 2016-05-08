@@ -29,7 +29,7 @@ class MetadataFinder(ast.NodeVisitor):
             self.license = node.value.s
 
 
-with open(os.path.join('djstripe', '__init__.py')) as open_file:
+with open(os.path.join('djbraintree', '__init__.py')) as open_file:
     finder = MetadataFinder()
     finder.visit(ast.parse(open_file.read()))
 
@@ -63,7 +63,7 @@ INSTALL_REQUIRES = [
 ]
 
 setup(
-    name='dj-stripe',
+    name='dj-braintree',
     version=finder.version,
     description=finder.summary,
     long_description=readme + '\n\n' + history,
@@ -71,9 +71,9 @@ setup(
     author_email=finder.email,
     url=finder.uri,
     packages=[
-        'djstripe',
+        'djbraintree',
     ],
-    package_dir={'djstripe': 'djstripe'},
+    package_dir={'djbraintree': 'djbraintree'},
     include_package_data=True,
     install_requires=INSTALL_REQUIRES,
     license=finder.license,

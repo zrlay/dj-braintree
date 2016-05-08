@@ -10,7 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 PY3 = sys.version > "3"
 
-subscriber_request_callback = getattr(settings, "DJBRAINTREE_SUBSCRIBER_MODEL_REQUEST_CALLBACK", (lambda request: request.user))
+subscriber_request_callback = getattr(settings, "DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK", (lambda request: request.user))
 
 INVOICE_FROM_EMAIL = getattr(settings, "DJBRAINTREE_INVOICE_FROM_EMAIL", "billing@example.com")
 PAYMENTS_PLANS = getattr(settings, "DJBRAINTREE_PLANS", {})
@@ -74,10 +74,10 @@ def _check_subscriber_for_email_address(subscriber_model, message):
 def get_subscriber_model():
     """
     Users have the option of specifying a custom subscriber model via the
-    DJBRAINTREE_SUBSCRIBER_MODEL setting.
+    DJBRAINTREE_PAYER_MODEL setting.
 
     This method attempts to pull that model from settings, and falls back to
-    AUTH_USER_MODEL if DJBRAINTREE_SUBSCRIBER_MODEL is not set.
+    AUTH_USER_MODEL if DJBRAINTREE_PAYER_MODEL is not set.
 
     Note: Django 1.4 support was dropped in #107
           https://github.com/pydanny/dj-braintree/pull/107
@@ -85,7 +85,7 @@ def get_subscriber_model():
     Returns the subscriber model that is active in this project.
     """
 
-    SUBSCRIBER_MODEL = getattr(settings, "DJBRAINTREE_SUBSCRIBER_MODEL", None)
+    SUBSCRIBER_MODEL = getattr(settings, "DJBRAINTREE_PAYER_MODEL", None)
 
     # Check if a subscriber model is specified. If not, fall back and exit.
     if not SUBSCRIBER_MODEL:
@@ -101,17 +101,17 @@ def get_subscriber_model():
     try:
         subscriber_model = django_apps.get_model(SUBSCRIBER_MODEL)
     except ValueError:
-        raise ImproperlyConfigured("DJBRAINTREE_SUBSCRIBER_MODEL must be of the form 'app_label.model_name'.")
+        raise ImproperlyConfigured("DJBRAINTREE_PAYER_MODEL must be of the form 'app_label.model_name'.")
     except LookupError:
-        raise ImproperlyConfigured("DJBRAINTREE_SUBSCRIBER_MODEL refers to model '{model}' that has not been installed.".format(model=SUBSCRIBER_MODEL))
+        raise ImproperlyConfigured("DJBRAINTREE_PAYER_MODEL refers to model '{model}' that has not been installed.".format(model=SUBSCRIBER_MODEL))
 
-    _check_subscriber_for_email_address(subscriber_model, "DJBRAINTREE_SUBSCRIBER_MODEL must have an email attribute.")
+    _check_subscriber_for_email_address(subscriber_model, "DJBRAINTREE_PAYER_MODEL must have an email attribute.")
 
     # Custom user model detected. Make sure the callback is configured.
-    if hasattr(settings, "DJBRAINTREE_SUBSCRIBER_MODEL_REQUEST_CALLBACK"):
-        if not callable(getattr(settings, "DJBRAINTREE_SUBSCRIBER_MODEL_REQUEST_CALLBACK")):
-            raise ImproperlyConfigured("DJBRAINTREE_SUBSCRIBER_MODEL_REQUEST_CALLBACK must be callable.")
+    if hasattr(settings, "DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK"):
+        if not callable(getattr(settings, "DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK")):
+            raise ImproperlyConfigured("DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK must be callable.")
     else:
-        raise ImproperlyConfigured("DJBRAINTREE_SUBSCRIBER_MODEL_REQUEST_CALLBACK must be implemented if a DJBRAINTREE_SUBSCRIBER_MODEL is defined.")
+        raise ImproperlyConfigured("DJBRAINTREE_PAYER_MODEL_REQUEST_CALLBACK must be implemented if a DJBRAINTREE_PAYER_MODEL is defined.")
 
     return subscriber_model

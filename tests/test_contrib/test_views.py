@@ -1,6 +1,6 @@
 """
-.. module:: dj-stripe.tests.test_contrib.test_views
-    :synopsis: dj-stripe Rest views for Subscription Tests.
+.. module:: dj-braintree.tests.test_contrib.test_views
+    :synopsis: dj-braintree Rest views for Subscription Tests.
 
 .. moduleauthor:: Philippe Luickx (@philippeluickx)
 
@@ -19,8 +19,8 @@ from mock import patch, PropertyMock
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from djstripe.models import CurrentSubscription, Customer
-from djstripe import settings as djstripe_settings
+from djbraintree.models import CurrentSubscription, Customer
+from djbraintree import settings as djbraintree_settings
 
 if settings.STRIPE_PUBLIC_KEY and settings.STRIPE_SECRET_KEY:
     import stripe
@@ -32,7 +32,7 @@ class RestSubscriptionTest(APITestCase):
     Test the REST api for subscriptions.
     """
     def setUp(self):
-        self.url = reverse("rest_djstripe:subscription")
+        self.url = reverse("rest_djbraintree:subscription")
         self.user = get_user_model().objects.create_user(
             username="testuser",
             email="test@example.com",
@@ -41,8 +41,8 @@ class RestSubscriptionTest(APITestCase):
 
         self.assertTrue(self.client.login(username="testuser", password="123"))
 
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_create_subscription(self, stripe_customer_mock, update_card_mock, subscribe_mock):
         self.assertEqual(0, Customer.objects.count())
@@ -57,8 +57,8 @@ class RestSubscriptionTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, data)
 
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
-    @patch("djstripe.models.Customer.update_card", autospec=True)
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.update_card", autospec=True)
     @patch("stripe.Customer.create", return_value=PropertyMock(id="cus_xxx1234567890"))
     def test_create_subscription_exception(self, stripe_customer_mock, update_card_mock, subscribe_mock):
         e = Exception
@@ -94,9 +94,9 @@ class RestSubscriptionTest(APITestCase):
         self.assertEqual(response.data['status'], 'active')
         self.assertEqual(response.data['cancel_at_period_end'], False)
 
-    @patch("djstripe.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_ACTIVE))
-    @patch("djstripe.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00), status="active"))
-    @patch("djstripe.models.Customer.subscribe", autospec=True)
+    @patch("djbraintree.models.Customer.cancel_subscription", return_value=CurrentSubscription(status=CurrentSubscription.STATUS_ACTIVE))
+    @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=CurrentSubscription(plan="test", amount=Decimal(25.00), status="active"))
+    @patch("djbraintree.models.Customer.subscribe", autospec=True)
     def test_cancel_subscription(self, subscribe_mock, stripe_create_customer_mock, cancel_subscription_mock):
         fake_customer = Customer.objects.create(
             stripe_id="cus_xxx1234567890",
@@ -118,7 +118,7 @@ class RestSubscriptionTest(APITestCase):
         self.assertEqual(1, CurrentSubscription.objects.count())
 
         cancel_subscription_mock.assert_called_once_with(
-            at_period_end=djstripe_settings.CANCELLATION_AT_PERIOD_END
+            at_period_end=djbraintree_settings.CANCELLATION_AT_PERIOD_END
         )
         self.assertTrue(self.user.is_authenticated())
 
@@ -141,7 +141,7 @@ class RestSubscriptionNotLoggedInTest(APITestCase):
     Test the exceptions thrown by the subscription rest views.
     """
     def setUp(self):
-        self.url = reverse("rest_djstripe:subscription")
+        self.url = reverse("rest_djbraintree:subscription")
 
     def test_create_subscription_not_logged_in(self):
         self.assertEqual(0, Customer.objects.count())

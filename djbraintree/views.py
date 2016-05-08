@@ -41,7 +41,7 @@ from .sync import sync_subscriber
 
 class AccountView(LoginRequiredMixin, SelectRelatedMixin, TemplateView):
     """Shows account details including customer and subscription details."""
-    template_name = "djstripe/account.html"
+    template_name = "djbraintree/account.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super(AccountView, self).get_context_data(**kwargs)
@@ -62,7 +62,7 @@ class AccountView(LoginRequiredMixin, SelectRelatedMixin, TemplateView):
 
 class ChangeCardView(LoginRequiredMixin, PaymentsContextMixin, DetailView):
     """TODO: Needs to be refactored to leverage forms and context data."""
-    template_name = "djstripe/change_card.html"
+    template_name = "djbraintree/change_card.html"
 
     def get_object(self):
         if hasattr(self, "customer"):
@@ -100,12 +100,12 @@ class ChangeCardView(LoginRequiredMixin, PaymentsContextMixin, DetailView):
         return redirect(self.get_post_success_url())
 
     def get_post_success_url(self):
-        """ Makes it easier to do custom dj-stripe integrations. """
-        return reverse("djstripe:account")
+        """ Makes it easier to do custom dj-braintree integrations. """
+        return reverse("djbraintree:account")
 
 
 class HistoryView(LoginRequiredMixin, SelectRelatedMixin, DetailView):
-    template_name = "djstripe/history.html"
+    template_name = "djbraintree/history.html"
     model = Customer
     select_related = ["invoice"]
 
@@ -118,7 +118,7 @@ class HistoryView(LoginRequiredMixin, SelectRelatedMixin, DetailView):
 class SyncHistoryView(CsrfExemptMixin, LoginRequiredMixin, View):
     """TODO: Needs to be refactored to leverage context data."""
 
-    template_name = "djstripe/includes/_history_table.html"
+    template_name = "djbraintree/includes/_history_table.html"
 
     def post(self, request, *args, **kwargs):
         return render(
@@ -135,14 +135,14 @@ class SyncHistoryView(CsrfExemptMixin, LoginRequiredMixin, View):
 class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixin, FormView):
 
     form_class = PlanForm
-    template_name = "djstripe/confirm_form.html"
-    success_url = reverse_lazy("djstripe:history")
+    template_name = "djbraintree/confirm_form.html"
+    success_url = reverse_lazy("djbraintree:history")
     form_valid_message = "You are now subscribed!"
 
     def get(self, request, *args, **kwargs):
         plan_slug = self.kwargs['plan']
         if plan_slug not in PAYMENT_PLANS:
-            return redirect("djstripe:subscribe")
+            return redirect("djbraintree:subscribe")
 
         plan = PAYMENT_PLANS[plan_slug]
         customer, created = Customer.get_or_create(
@@ -151,7 +151,7 @@ class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMix
         if hasattr(customer, "current_subscription") and customer.current_subscription.plan == plan['plan'] and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED:
             message = "You already subscribed to this plan"
             messages.info(request, message, fail_silently=True)
-            return redirect("djstripe:subscribe")
+            return redirect("djbraintree:subscribe")
 
         return super(ConfirmFormView, self).get(request, *args, **kwargs)
 
@@ -182,7 +182,7 @@ class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMix
 
 
 class SubscribeView(LoginRequiredMixin, SubscriptionMixin, TemplateView):
-    template_name = "djstripe/subscribe.html"
+    template_name = "djbraintree/subscribe.html"
 
 
 class ChangePlanView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixin, FormView):
@@ -193,8 +193,8 @@ class ChangePlanView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixi
     """
 
     form_class = PlanForm
-    template_name = "djstripe/confirm_form.html"
-    success_url = reverse_lazy("djstripe:history")
+    template_name = "djbraintree/confirm_form.html"
+    success_url = reverse_lazy("djbraintree:history")
     form_valid_message = "You've just changed your plan!"
 
     def post(self, request, *args, **kwargs):
@@ -232,9 +232,9 @@ class ChangePlanView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixi
 
 
 class CancelSubscriptionView(LoginRequiredMixin, SubscriptionMixin, FormView):
-    template_name = "djstripe/cancel_subscription.html"
+    template_name = "djbraintree/cancel_subscription.html"
     form_class = CancelSubscriptionForm
-    success_url = reverse_lazy("djstripe:account")
+    success_url = reverse_lazy("djbraintree:account")
 
     def form_valid(self, form):
         customer, created = Customer.get_or_create(
