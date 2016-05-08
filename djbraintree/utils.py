@@ -81,7 +81,7 @@ def entity_has_active_subscription(entity):
 
 def get_supported_currency_choices(api_key):
     """
-    Pulls a stripe account's supported currencies and returns a choices tuple of
+    Pulls a braintree account's supported currencies and returns a choices tuple of
     those supported currencies.
 
     :param api_key: The api key associated with the account from which to pull data.

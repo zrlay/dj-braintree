@@ -97,7 +97,7 @@ Sometimes you want a custom plan for per-customer billing. Or perhaps you are pr
     @receiver(subscription_made)
     def my_callback(sender, **kwargs):
         # Updates the User record any time the subscription is changed.
-        user = User.objects.get(customer__stripe_id=kwargs['stripe_response'].customer)
+        user = User.objects.get(customer__braintree_id=kwargs['braintree_response'].customer)
 
         # Only update users with non-custom choices
         if user.plan in [x[0] for x in PLAN_CHOICES]:
@@ -107,7 +107,7 @@ Sometimes you want a custom plan for per-customer billing. Or perhaps you are pr
 Making individual purchases
 ---------------------------
 
-On the subscriber's customer object, use the charge method to generate a Stripe charge. In this example, we're using the user with ID=1 as the subscriber.
+On the subscriber's customer object, use the charge method to generate a Braintree charge. In this example, we're using the user with ID=1 as the subscriber.
 
 .. code-block:: python
 

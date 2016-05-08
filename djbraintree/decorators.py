@@ -7,21 +7,15 @@ from functools import wraps
 from django.utils.decorators import available_attrs
 from django.shortcuts import redirect
 
-from .utils import subscriber_has_active_subscription
+from .utils import entity_has_active_subscription
 from .settings import subscriber_request_callback
 
 
-def user_passes_pay_test(test_func, pay_page="djbraintree:subscribe"):
-    warnings.warn("Deprecated - Use ``subscriber_passes_pay_test`` instead. This method will be removed in dj-braintree 1.0.", DeprecationWarning)
-
-    return subscriber_passes_pay_test(test_func=test_func, pay_page=pay_page)
-
-
-def subscriber_passes_pay_test(test_func, pay_page="djbraintree:subscribe"):
+def entity_passes_pay_test(test_func, pay_page="djbraintree:subscribe"):
     """
     Decorator for views that checks that the subscriber passes the given test for a "Paid Feature",
     redirecting to the pay form if necessary. The test should be a callable
-    that takes the subscriber object and returns True if the subscriber passes.
+    that takes the payer object and returns True if the payer passes.
     """
 
     def decorator(view_func):
@@ -41,8 +35,8 @@ def subscription_payment_required(function=None, pay_page="djbraintree:subscribe
     subscribe page if necessary.
     """
 
-    actual_decorator = subscriber_passes_pay_test(
-        subscriber_has_active_subscription,
+    actual_decorator = entity_passes_pay_test(
+        entity_has_active_subscription,
         pay_page=pay_page
     )
     if function:

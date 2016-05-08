@@ -40,7 +40,7 @@ if False:
 
         def test_bad_sync(self):
             customer = sync_subscriber(self.user)
-            customer.stripe_id = "fake_customer_id"
+            customer.braintree_id = "fake_customer_id"
             customer.save()
 
             sync_subscriber(self.user)
@@ -48,9 +48,9 @@ if False:
             self.assertEqual("ERROR: No such customer: fake_customer_id", sys.stdout.getvalue().strip())
 
         def test_charge_sync(self):
-            # Initialize stripe
+            # Initialize braintree
             import stripe
-            stripe.api_key = settings.STRIPE_SECRET_KEY
+            stripe.api_key = settings.BRAINTREE_PRIVATE_KEY
 
             customer = sync_subscriber(self.user)
             charges = Charge.objects.filter(customer=customer)

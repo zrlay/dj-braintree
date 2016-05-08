@@ -1,6 +1,8 @@
-from stripe import api_key
-from stripe.resource import convert_to_stripe_object
+from braintree import BraintreeGateway, SuccessfulResult
 
 
-def convert_to_fake_stripe_object(response):
-    return convert_to_stripe_object(resp=response, api_key=api_key, account="test_account")
+def convert_to_fake_success_result(cls, mock_data):
+    """ Mocks a successful result from Braintree API """
+    bt_gateway = BraintreeGateway()
+    gateway = getattr(bt_gateway, cls.braintree_api_name)
+    return SuccessfulResult({"merchant_account": cls(gateway, mock_data)})

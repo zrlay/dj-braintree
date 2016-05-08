@@ -23,12 +23,12 @@
         <form
         {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
             action="{% url 'djbraintree:confirm' plan=plan.plan %}" class="djbraintree-subscribe"
-            data-key="{{ STRIPE_PUBLIC_KEY }}"
+            data-key="{{ BRAINTREE_PUBLIC_KEY }}"
             data-amount="{{ plan.price }}"
             data-name="{{ plan.name }}"
             data-description="{{ plan.description }}"
         {% else %}
-            data-stripe-key="{{ STRIPE_PUBLIC_KEY }}"
+            data-stripe-key="{{ BRAINTREE_PUBLIC_KEY }}"
             action="{% url 'djbraintree:change_plan' %}" class="djbraintree-change-plan"
         {% endif %}
         method="POST">
@@ -76,8 +76,8 @@
                 $('.progress-bar').animate({width:'+=100%'}, 2000);
                 $form.trigger("submit");
             };
-            StripeCheckout.open({
-                key: "{{ STRIPE_PUBLIC_KEY }}",
+            BraintreeCheckout.open({
+                key: "{{ BRAINTREE_PUBLIC_KEY }}",
                 name: 'Payment Method',
                 panelLabel: 'Add Payment Method',
                 token: token

@@ -22,9 +22,9 @@ from rest_framework.test import APITestCase
 from djbraintree.models import CurrentSubscription, Customer
 from djbraintree import settings as djbraintree_settings
 
-if settings.STRIPE_PUBLIC_KEY and settings.STRIPE_SECRET_KEY:
+if settings.BRAINTREE_PUBLIC_KEY and settings.BRAINTREE_PRIVATE_KEY:
     import stripe
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.api_key = settings.BRAINTREE_PRIVATE_KEY
 
 
 class RestSubscriptionTest(APITestCase):

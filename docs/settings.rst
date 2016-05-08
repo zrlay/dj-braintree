@@ -46,13 +46,13 @@ Example:
         }
     }
 
-.. note:: Stripe Plan creation
+.. note:: Braintree Plan creation
 
-    Not all properties listed in the plans above are used by Stripe - i.e 'description' and 'image',
+    Not all properties listed in the plans above are used by Braintree - i.e 'description' and 'image',
     which are used to display the plans description and related image within specific templates.
 
     Although any arbitrary property you require can be added to each plan listed in DJ_STRIPE_PLANS,
-    only specific properties are used by Stripe. The full list of required and optional arguments can
+    only specific properties are used by Braintree. The full list of required and optional arguments can
     be found here_.
 
 .. _here: https://stripe.com/docs/api/python#create_plan
@@ -289,7 +289,7 @@ Examples:
 DJSTRIPE_WEBHOOK_URL (=r"^webhook/$")
 =============================================
 
-This is where you can set *Stripe.com* to send webhook response. You can set this to what you want to prevent unnecessary hijinks from unfriendly people.
+This is where you can set *Braintree.com* to send webhook response. You can set this to what you want to prevent unnecessary hijinks from unfriendly people.
 
 As this is embedded in the URLConf, this must be a resolvable regular expression.
 

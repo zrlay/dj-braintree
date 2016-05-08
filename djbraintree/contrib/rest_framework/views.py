@@ -21,7 +21,7 @@ from .serializers import SubscriptionSerializer, CreateSubscriptionSerializer
 
 class SubscriptionRestView(APIView):
     """
-    A REST API for Stripes implementation in the backend
+    A REST API for Braintrees implementation in the backend
     """
 
     permission_classes = (IsAuthenticated,)

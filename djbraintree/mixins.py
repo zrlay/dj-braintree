@@ -39,7 +39,7 @@ class PaymentsContextMixin(object):
     def get_context_data(self, **kwargs):
         context = super(PaymentsContextMixin, self).get_context_data(**kwargs)
         context.update({
-            "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLIC_KEY,
+            "BRAINTREE_PUBLIC_KEY": settings.BRAINTREE_PUBLIC_KEY,
             "PLAN_CHOICES": djbraintree_settings.PLAN_CHOICES,
             "PLAN_LIST": djbraintree_settings.PLAN_LIST,
             "PAYMENT_PLANS": djbraintree_settings.PAYMENTS_PLANS

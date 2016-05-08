@@ -1,17 +1,17 @@
 =============================
 dj-braintree
 =============================
-Django + Stripe Made Easy
+Django + Braintree Made Easy
 
 Badges
 ------
 
-.. image:: https://img.shields.io/travis/pydanny/dj-braintree.svg?style=flat-square
-        :target: https://travis-ci.org/pydanny/dj-braintree
-.. image:: https://img.shields.io/codecov/c/github/pydanny/dj-braintree/master.svg?style=flat-square
-        :target: http://codecov.io/github/pydanny/dj-braintree?branch=master
-.. image:: https://img.shields.io/requires/github/pydanny/dj-braintree.svg?style=flat-square
-        :target: https://requires.io/github/pydanny/dj-braintree/requirements/?branch=master
+.. image:: https://img.shields.io/travis/mightbejosh/dj-braintree.svg?style=flat-square
+        :target: https://travis-ci.org/mightbejosh/dj-braintree
+.. image:: https://img.shields.io/codecov/c/github/mightbejosh/dj-braintree/master.svg?style=flat-square
+        :target: http://codecov.io/github/mightbejosh/dj-braintree?branch=master
+.. image:: https://img.shields.io/requires/github/mightbejosh/dj-braintree.svg?style=flat-square
+        :target: https://requires.io/github/mightbejosh/dj-braintree/requirements/?branch=master
 .. image:: https://img.shields.io/codacy/3c99e13eda1c4dea9f993b362e4ea816.svg?style=flat-square
         :target: https://www.codacy.com/app/kavanaugh-development/dj-braintree/dashboard
 
@@ -20,10 +20,10 @@ Badges
 .. image:: https://img.shields.io/pypi/dw/dj-braintree.svg?style=flat-square
         :target: https://pypi.python.org/pypi/dj-braintree
 
-.. image:: https://img.shields.io/github/issues/pydanny/dj-braintree.svg?style=flat-square
-        :target: https://github.com/pydanny/dj-braintree/issues
-.. image:: https://img.shields.io/github/license/pydanny/dj-braintree.svg?style=flat-square
-        :target: https://github.com/pydanny/dj-braintree/blob/master/LICENSE
+.. image:: https://img.shields.io/github/issues/mightbejosh/dj-braintree.svg?style=flat-square
+        :target: https://github.com/mightbejosh/dj-braintree/issues
+.. image:: https://img.shields.io/github/license/mightbejosh/dj-braintree.svg?style=flat-square
+        :target: https://github.com/mightbejosh/dj-braintree/blob/master/LICENSE
 
 
 Documentation
@@ -35,14 +35,12 @@ Features
 --------
 
 * Subscription management
-* Designed for easy implementation of post-registration subscription forms
 * Single-unit purchases
 * Works with Django ~=1.9.1, 1.8
 * Works with Python 3.5, 3.4, 2.7
 * Works with Bootstrap 3
 * Built-in migrations
 * Dead-Easy installation
-* Leverages the best of the 3rd party Django package ecosystem
 * `djbraintree` namespace so you can have more than one payments related app
 * Documented
 * Tested
@@ -51,9 +49,10 @@ Features
 Constraints
 ------------
 
-1. For stripe.com only
-2. Only use or support well-maintained third-party libraries
-3. For modern Python and Django
+1. For braintreepayments.com only
+2. Support the Braintree Marketplace API (for creating ecommerce platforms, vendors and submerchants)
+3. Only use or support well-maintained third-party libraries
+4. For modern Python and Django
 
 
 Quickstart
@@ -73,35 +72,13 @@ Add ``djbraintree`` to your ``INSTALLED_APPS``:
         "djbraintree",
     )
 
-Add your stripe keys:
+Add your Braintree keys:
 
 .. code-block:: python
 
-    STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "<your publishable key>")
-    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "<your secret key>")
-
-Add some payment plans:
-
-.. code-block:: python
-
-    DJSTRIPE_PLANS = {
-        "monthly": {
-            "stripe_plan_id": "pro-monthly",
-            "name": "Web App Pro ($24.99/month)",
-            "description": "The monthly subscription plan to WebApp",
-            "price": 2499,  # $24.99
-            "currency": "usd",
-            "interval": "month"
-        },
-        "yearly": {
-            "stripe_plan_id": "pro-yearly",
-            "name": "Web App Pro ($199/year)",
-            "description": "The annual subscription plan to WebApp",
-            "price": 19900,  # $199.00
-            "currency": "usd",
-            "interval": "year"
-        }
-    }
+    BRAINTREE_PUBLIC_KEY = os.environ.get("BRAINTREE_PUBLIC_KEY", "<your publishable key>")
+    BRAINTREE_PRIVATE_KEY = os.environ.get("BRAINTREE_PRIVATE_KEY", "<your secret key>")
+    BRAINTREE_MERCHANT_ID = os.environ.get("BRAINTREE_MERCHANT_ID", "<your merchant ID>")
 
 Add to the urls.py:
 
@@ -141,7 +118,7 @@ Also, if you don't have it already, add a javascript block to your base.html fil
 
 
 Running the Tests
-------------------
+-----------------
 
 Assuming the tests are run against PostgreSQL::
 
@@ -152,12 +129,6 @@ Assuming the tests are run against PostgreSQL::
 Follows Best Practices
 ======================
 
-.. image:: http://twoscoops.smugmug.com/Two-Scoops-Press-Media-Kit/i-C8s5jkn/0/O/favicon-152.png
-   :name: Two Scoops Logo
-   :align: center
-   :alt: Two Scoops of Django
-   :target: http://twoscoopspress.org/products/two-scoops-of-django-1-8
-
 This project follows best practices as espoused in `Two Scoops of Django: Best Practices for Django 1.8`_.
 
 .. _`Two Scoops of Django: Best Practices for Django 1.8`: http://twoscoopspress.org/products/two-scoops-of-django-1-8
@@ -165,6 +136,4 @@ This project follows best practices as espoused in `Two Scoops of Django: Best P
 Similar Projects
 ----------------
 
-* https://github.com/eldarion/django-stripe-payments - The project that dj-braintree forked. It's an awesome project and worth checking out.
-* https://github.com/agiliq/merchant - A single charge payment processing system that also includes many other Gateways. Really nice but doesn't out-of-the-box handle the use case of subscription payments.
-* https://github.com/GoodCloud/django-zebra - One of the first stripe payment systems for Django.
+* https://github.com/pydanny/dj-stripe - The project after which dj-braintree is modeled. If you prefer Stripe to handle your payments, start here.

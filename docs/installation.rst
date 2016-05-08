@@ -36,8 +36,8 @@ Add your stripe keys:
 
 .. code-block:: python
 
-    STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "<your publishable key>")
-    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "<your secret key>")
+    BRAINTREE_PUBLIC_KEY = os.environ.get("BRAINTREE_PUBLIC_KEY", "<your publishable key>")
+    BRAINTREE_PRIVATE_KEY = os.environ.get("BRAINTREE_PRIVATE_KEY", "<your secret key>")
 
 Add some payment plans:
 
@@ -62,13 +62,13 @@ Add some payment plans:
         }
     }
 
-.. note:: Stripe Plan creation
+.. note:: Braintree Plan creation
 
-    Not all properties listed in the plans above are used by Stripe - i.e 'description', which
+    Not all properties listed in the plans above are used by Braintree - i.e 'description', which
     is used to display the plans description within specific templates.
 
     Although any arbitrary property you require can be added to each plan listed in DJ_STRIPE_PLANS,
-    only specific properties are used by Stripe. The full list of required and optional arguments
+    only specific properties are used by Braintree. The full list of required and optional arguments
     can be found here_.
 
 .. _here: https://stripe.com/docs/api/python#create_plan

@@ -55,7 +55,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 INSTALL_REQUIRES = [
     'django!=1.9,>=1.8',
-    'stripe>=1.22.2',
+    'braintree>=3.25',
     'django-model-utils>=2.2',
     'django-braces>=1.8.0',
     'jsonfield>=1.0.3',
@@ -78,7 +78,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     license=finder.license,
     zip_safe=False,
-    keywords='stripe django',
+    keywords='braintree django',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

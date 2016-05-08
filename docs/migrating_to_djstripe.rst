@@ -52,7 +52,7 @@ Migrating Data
 **Issues:**
 
 1. **dj-braintree** includes South migrations and **django-stripe-payments** has no database migrations.
-2. **dj-braintree** replaces the ``payments.models.StripeObject.created_at`` field with ``django-model-utils`` fields of ``model_utls.models.TimeStampedModel.created`` and ``model_utls.models.TimeStampedModel.modified``.
+2. **dj-braintree** replaces the ``payments.models.BraintreeObject.created_at`` field with ``django-model-utils`` fields of ``model_utls.models.TimeStampedModel.created`` and ``model_utls.models.TimeStampedModel.modified``.
 
 This will require some sort of one-time migration script. If you create one for your own project, please submit it or link to a paste/gist of the code.
 

@@ -115,7 +115,7 @@ class TestSyncPlans(TestCase):
 
     @patch("stripe.Plan.create")
     def test_plan_exists(self, plan_create_mock):
-        plan_create_mock.side_effect = stripe.StripeError("Plan already exists.")
+        plan_create_mock.side_effect = stripe.BraintreeError("Plan already exists.")
 
         sync_plans(api_key)
         self.assertTrue("ERROR: Plan already exists.", sys.stdout.getvalue().strip())

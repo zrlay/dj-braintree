@@ -63,8 +63,8 @@ class BraintreeObject(TimeStampedModel):
     @classmethod
     def api(cls):
         """
-        Get the api object for this type of stripe object (requires
-        stripe_api_name attribute to be set on model).
+        Get the api object for this type of braintree object (requires
+        braintree_api_name attribute to be set on model).
         """
         if cls.braintree_api_name is None:
             raise NotImplementedError(

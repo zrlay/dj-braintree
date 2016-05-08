@@ -33,7 +33,7 @@ def run_test_suite(args):
         cov.start()
 
     settings.configure(
-        DJSTRIPE_TESTS_SKIP_UTC=skip_utc,
+        DJBRAINTREE_TESTS_SKIP_UTC=skip_utc,
         TIME_ZONE='America/Los_Angeles',
         DEBUG=True,
         USE_TZ=True,
@@ -65,82 +65,10 @@ def run_test_suite(args):
             "django.contrib.messages.middleware.MessageMiddleware"
         ),
         SITE_ID=1,
-        STRIPE_PUBLIC_KEY=os.environ.get("STRIPE_PUBLIC_KEY", ""),
-        STRIPE_SECRET_KEY=os.environ.get("STRIPE_SECRET_KEY", ""),
-        DJSTRIPE_PLANS={
-            "test0": {
-                "stripe_plan_id": "test_id_0",
-                "name": "Test Plan 0",
-                "description": "A test plan",
-                "price": 1000,  # $10.00
-                "currency": "usd",
-                "interval": "month"
-            },
-            "test": {
-                "stripe_plan_id": "test_id",
-                "name": "Test Plan 1",
-                "description": "Another test plan",
-                "price": 2500,  # $25.00
-                "currency": "usd",
-                "interval": "month"
-            },
-            "test2": {
-                "stripe_plan_id": "test_id_2",
-                "name": "Test Plan 2",
-                "description": "Yet Another test plan",
-                "price": 5000,  # $50.00
-                "currency": "usd",
-                "interval": "month"
-            },
-            "test_deletion": {
-                "stripe_plan_id": "test_id_3",
-                "name": "Test Plan 3",
-                "description": "Test plan for deletion.",
-                "price": 5000,  # $50.00
-                "currency": "usd",
-                "interval": "month"
-            },
-            "test_trial": {
-                "stripe_plan_id": "test_id_4",
-                "name": "Test Plan 4",
-                "description": "Test plan for trails.",
-                "price": 7000,  # $70.00
-                "currency": "usd",
-                "interval": "month",
-                "trial_period_days": 7
-            },
-            "unidentified_test_plan": {
-                "name": "Unidentified Test Plan",
-                "description": "A test plan with no ID.",
-                "price": 2500,  # $25.00
-                "currency": "usd",
-                "interval": "month"
-            }
-        },
-        DJSTRIPE_PLAN_HIERARCHY={
-            "bronze": {
-                "level": 1,
-                "plans": [
-                    "test0",
-                    "test",
-                ]
-            },
-            "silver": {
-                "level": 2,
-                "plans": [
-                    "test2",
-                    "test_deletion",
-                ]
-            },
-            "gold": {
-                "level": 3,
-                "plans": [
-                    "test_trial",
-                    "unidentified_test_plan",
-                ]
-            },
-        },
-        DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS=(
+        BRAINTREE_PUBLIC_KEY=os.environ.get("BRAINTREE_PUBLIC_KEY", ""),
+        BRAINTREE_PRIVATE_KEY=os.environ.get("BRAINTREE_PRIVATE_KEY", ""),
+
+        DJBRAINTREE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS=(
             "(admin)",
             "test_url_name",
             "testapp_namespaced:test_url_namespaced",

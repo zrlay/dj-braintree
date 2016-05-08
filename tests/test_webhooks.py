@@ -15,7 +15,7 @@ from tests.test_transfer import TRANSFER_CREATED_TEST_DATA
 class TestWebhook(TestCase):
 
     @patch("stripe.Event.retrieve")
-    def test_webhook_with_transfer_event(self, StripeEventMock):
+    def test_webhook_with_transfer_event(self, BraintreeEventMock):
         data = {
             "created": 1348360173,
             "data": {
@@ -61,7 +61,7 @@ class TestWebhook(TestCase):
             "pending_webhooks": 1,
             "type": "transfer.created"
         }
-        StripeEventMock.return_value.to_dict.return_value = data
+        BraintreeEventMock.return_value.to_dict.return_value = data
         msg = json.dumps(data)
         resp = Client().post(
             reverse("djbraintree:webhook"),
@@ -72,7 +72,7 @@ class TestWebhook(TestCase):
         self.assertTrue(Event.objects.filter(kind="transfer.created").exists())
 
     @patch("stripe.Event.retrieve")
-    def test_webhook_with_transfer_event_duplicate(self, StripeEventMock):
+    def test_webhook_with_transfer_event_duplicate(self, BraintreeEventMock):
         data = {
             "created": 1348360173,
             "data": {
@@ -118,7 +118,7 @@ class TestWebhook(TestCase):
             "pending_webhooks": 1,
             "type": "transfer.created"
         }
-        StripeEventMock.return_value.to_dict.return_value = data
+        BraintreeEventMock.return_value.to_dict.return_value = data
         msg = json.dumps(data)
         resp = Client().post(
             reverse("djbraintree:webhook"),
@@ -226,7 +226,7 @@ class TestTransferWebhooks(TestCase):
                                 "amount": 45,
                                 "application": None,
                                 "currency": "usd",
-                                "description": "Stripe processing fees",
+                                "description": "Braintree processing fees",
                                 "type": "stripe_fee"
                             }],
                             "id": "ch_XXXXXXXXXX",

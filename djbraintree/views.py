@@ -86,8 +86,8 @@ class ChangeCardView(LoginRequiredMixin, PaymentsContextMixin, DetailView):
             if send_invoice:
                 customer.send_invoice()
             customer.retry_unpaid_invoices()
-        except stripe.StripeError as exc:
-            messages.info(request, "Stripe Error")
+        except stripe.BraintreeError as exc:
+            messages.info(request, "Braintree Error")
             return render(
                 request,
                 self.template_name,
@@ -173,7 +173,7 @@ class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMix
                     subscriber=subscriber_request_callback(self.request))
                 customer.update_card(self.request.POST.get("stripe_token"))
                 customer.subscribe(form.cleaned_data["plan"])
-            except stripe.StripeError as exc:
+            except stripe.BraintreeError as exc:
                 form.add_error(None, str(exc))
                 return self.form_invalid(form)
             return self.form_valid(form)
@@ -223,7 +223,7 @@ class ChangePlanView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixi
                         customer.subscribe(selected_plan_name)
                 else:
                     customer.subscribe(form.cleaned_data["plan"])
-            except stripe.StripeError as exc:
+            except stripe.BraintreeError as exc:
                 form.add_error(None, str(exc))
                 return self.form_invalid(form)
             return self.form_valid(form)

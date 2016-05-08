@@ -347,7 +347,7 @@ class TestCustomer(TestCase):
                 amount=decimal.Decimal("10.00")
             )
         except Invoice.DoesNotExist:
-            self.fail(msg="Stripe Charge shouldn't require an Invoice")
+            self.fail(msg="Braintree Charge shouldn't require an Invoice")
 
     @patch("stripe.Charge.retrieve")
     @patch("stripe.Charge.create")
@@ -580,7 +580,7 @@ class TestCustomer(TestCase):
 
     @patch("djbraintree.models.Customer.current_subscription", new_callable=PropertyMock, return_value=fake_current_subscription_cancelled_in_stripe)
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock, return_value=PropertyMock(subscription=None))
-    def test_sync_current_subscription_subscription_cancelled_from_Stripe(self, stripe_customer_mock, customer_subscription_mock):
+    def test_sync_current_subscription_subscription_cancelled_from_Braintree(self, stripe_customer_mock, customer_subscription_mock):
         self.assertEqual(CurrentSubscription.STATUS_CANCELLED, self.customer.sync_current_subscription().status)
 
 

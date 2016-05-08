@@ -23,7 +23,7 @@ class TestPlanAdmin(TestCase):
             currency='usd',
             interval='week',
             interval_count=1,
-            name='A test Stripe Plan',
+            name='A test Braintree Plan',
             trial_period_days=12
         )
         self.site = AdminSite()
@@ -49,7 +49,7 @@ class TestPlanAdmin(TestCase):
             'currency': 'usd',
             'interval': 'month',
             'interval_count': 1,
-            'name': 'A test Admin Stripe Plan',
+            'name': 'A test Admin Braintree Plan',
             'trial_period_days': 12
         }
 

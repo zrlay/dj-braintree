@@ -1,8 +1,15 @@
 Credits
 =======
 
-Development Lead
-----------------
+Development Lead (dj-braintree)
+-------------------------------
+* Zach Layng <mightbejosh@gmail.com>
+
+
+This Braintree version would not have been possible without:
+
+Development Lead (dj-stripe)
+----------------------------
 
 * Daniel Greenfeld <pydanny@gmail.com>
 * Buddy Lindsley
@@ -11,8 +18,8 @@ Development Lead
 * Mahdi Yusuf (@myusuf3)
 * Alexander Kavanaugh (@kavdev)
 
-Contributors
-------------
+Contributors (dj-stripe)
+------------------------
 
 * Luis Montiel <luismmontielg@gmail.com>
 * Kulbir Singh (@kulbir)

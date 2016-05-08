@@ -79,7 +79,7 @@ admin.site.register(
     Charge,
     readonly_fields=('created',),
     list_display=[
-        "stripe_id",
+        "braintree_id",
         "customer",
         "amount",
         "description",
@@ -91,10 +91,10 @@ admin.site.register(
         "created"
     ],
     search_fields=[
-        "stripe_id",
-        "customer__stripe_id",
+        "braintree_id",
+        "customer__braintree_id",
         "card_last_4",
-        "invoice__stripe_id"
+        "invoice__braintree_id"
     ],
     list_filter=[
         "paid",
@@ -130,7 +130,7 @@ admin.site.register(
     raw_id_fields=["customer"],
     readonly_fields=('created',),
     list_display=[
-        "stripe_id",
+        "braintree_id",
         "kind",
         "livemode",
         "valid",
@@ -144,8 +144,8 @@ admin.site.register(
         "processed"
     ],
     search_fields=[
-        "stripe_id",
-        "customer__stripe_id",
+        "braintree_id",
+        "customer__braintree_id",
         "validated_message"
     ],
 )
@@ -165,7 +165,7 @@ admin.site.register(
     raw_id_fields=["subscriber"],
     readonly_fields=('created',),
     list_display=[
-        "stripe_id",
+        "braintree_id",
         "subscriber",
         "card_kind",
         "card_last_4",
@@ -178,7 +178,7 @@ admin.site.register(
         CustomerSubscriptionStatusListFilter
     ],
     search_fields=[
-        "stripe_id"
+        "braintree_id"
     ],
     inlines=[CurrentSubscriptionInline]
 )
@@ -205,7 +205,7 @@ admin.site.register(
     raw_id_fields=["customer"],
     readonly_fields=('created',),
     list_display=[
-        "stripe_id",
+        "braintree_id",
         "paid",
         "closed",
         customer_email,
@@ -217,8 +217,8 @@ admin.site.register(
         "created"
     ],
     search_fields=[
-        "stripe_id",
-        "customer__stripe_id"
+        "braintree_id",
+        "customer__braintree_id"
     ],
     list_filter=[
         InvoiceCustomerHasCardListFilter,
@@ -240,7 +240,7 @@ admin.site.register(
     raw_id_fields=["event"],
     readonly_fields=('created',),
     list_display=[
-        "stripe_id",
+        "braintree_id",
         "amount",
         "status",
         "date",
@@ -248,8 +248,8 @@ admin.site.register(
         "created"
     ],
     search_fields=[
-        "stripe_id",
-        "event__stripe_id"
+        "braintree_id",
+        "event__braintree_id"
     ]
 )
 
@@ -258,7 +258,7 @@ class PlanAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Update or create objects using our custom methods that
-        sync with Stripe."""
+        sync with Braintree."""
 
         if change:
             obj.update_name()
@@ -270,7 +270,7 @@ class PlanAdmin(admin.ModelAdmin):
         readonly_fields = list(self.readonly_fields)
         if obj:
             readonly_fields.extend([
-                'stripe_id',
+                'braintree_id',
                 'amount',
                 'currency',
                 'interval',

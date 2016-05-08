@@ -8,8 +8,8 @@ from braintree.exceptions.not_found_error import NotFoundError
 from .models import Customer
 
 
-def sync_user(user):
-    customer, created = Customer.get_or_create(user=user)
+def sync_entity(entity):
+    customer, created = Customer.get_or_create(entity=entity)
     try:
         braintree_customer_object = customer.api_find()
         customer.sync(braintree_customer_object)
@@ -21,7 +21,7 @@ def sync_user(user):
     return customer
 
 #
-# def sync_plans(api_key=settings.STRIPE_SECRET_KEY):
+# def sync_plans(api_key=settings.BRAINTREE_PRIVATE_KEY):
 #     stripe.api_key = api_key
 #     for plan in settings.DJSTRIPE_PLANS:
 #         stripe_plan = settings.DJSTRIPE_PLANS[plan]

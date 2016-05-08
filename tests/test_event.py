@@ -402,7 +402,7 @@ class EventTest(TestCase):
         self.assertTrue(event.processed)
 
     @patch('djbraintree.models.EventProcessingException.log')
-    @patch('djbraintree.models.Event.send_signal', side_effect=stripe.StripeError())
+    @patch('djbraintree.models.Event.send_signal', side_effect=stripe.BraintreeError())
     def test_stripe_error(self, send_signal_mock, event_exception_log):
         event = Event.objects.create(
             stripe_id=self.message["id"],

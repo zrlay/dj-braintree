@@ -71,18 +71,15 @@ def _check_subscriber_for_email_address(subscriber_model, message):
         raise ImproperlyConfigured(message)
 
 
-def get_subscriber_model():
+def get_payer_model():
     """
-    Users have the option of specifying a custom subscriber model via the
+    Users have the option of specifying a custom payer model via the
     DJBRAINTREE_PAYER_MODEL setting.
 
     This method attempts to pull that model from settings, and falls back to
     AUTH_USER_MODEL if DJBRAINTREE_PAYER_MODEL is not set.
 
-    Note: Django 1.4 support was dropped in #107
-          https://github.com/pydanny/dj-braintree/pull/107
-
-    Returns the subscriber model that is active in this project.
+    Returns the payer model that is active in this project.
     """
 
     SUBSCRIBER_MODEL = getattr(settings, "DJBRAINTREE_PAYER_MODEL", None)

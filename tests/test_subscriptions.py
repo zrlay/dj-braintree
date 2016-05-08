@@ -159,8 +159,8 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.update_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_subscribe(self, StripeCustomerMock, UpdateSubscriptionMock):
-        StripeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB),
+    def test_subscribe(self, BraintreeCustomerMock, UpdateSubscriptionMock):
+        BraintreeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB),
                                           convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)]
         self.assertEqual(self.customer.has_active_subscription(), False)
         self.customer.subscribe("basic", charge_immediately=False)
@@ -171,8 +171,8 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.update_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_upgrade(self, StripeCustomerMock, UpdateSubscriptionMock):
-        StripeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC),
+    def test_upgrade(self, BraintreeCustomerMock, UpdateSubscriptionMock):
+        BraintreeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC),
                                           convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_GOLD)]
         create_subscription(self.customer)
         self.assertEqual(self.customer.has_active_subscription(), True)
@@ -189,8 +189,8 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.cancel_subscription", new_callable=PropertyMock)
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_cancel_without_stripe_sub(self, StripeCustomerMock, CancelSubscriptionMock):
-        StripeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB)
+    def test_cancel_without_stripe_sub(self, BraintreeCustomerMock, CancelSubscriptionMock):
+        BraintreeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB)
         CancelSubscriptionMock.side_effect = InvalidRequestError("No active subscriptions for customer: cus_xxxxxxxxxxxxxx", None)
         create_subscription(self.customer)
         self.assertEqual(self.customer.has_active_subscription(), True)
@@ -200,8 +200,8 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.cancel_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_cancel_with_stripe_sub(self, StripeCustomerMock, CancelSubscriptionMock):
-        StripeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
+    def test_cancel_with_stripe_sub(self, BraintreeCustomerMock, CancelSubscriptionMock):
+        BraintreeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
         CancelSubscriptionMock.return_value = convert_to_fake_stripe_object(DUMMY_SUB_BASIC_CANCELED)
         create_subscription(self.customer)
         self.assertEqual(self.customer.current_subscription.status, "trialing")
@@ -226,10 +226,10 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.update_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_update_quantity(self, StripeCustomerMock, UpdateSubscriptionMock):
+    def test_update_quantity(self, BraintreeCustomerMock, UpdateSubscriptionMock):
         dummy_customer = copy.deepcopy(DUMMY_CUSTOMER_WITH_SUB_BASIC)
         dummy_customer["subscription"]["quantity"] = 2
-        StripeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC),
+        BraintreeCustomerMock.side_effect = [convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC),
                                           convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC),
                                           convert_to_fake_stripe_object(dummy_customer)]
         create_subscription(self.customer)
@@ -237,16 +237,16 @@ class TestSingleSubscription(TestCase):
         self.assertEqual(self.customer.current_subscription.quantity, 2)
 
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_update_no_stripe_sub(self, StripeCustomerMock):
-        StripeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB)
+    def test_update_no_stripe_sub(self, BraintreeCustomerMock):
+        BraintreeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITHOUT_SUB)
         create_subscription(self.customer)
         with self.assertRaises(SubscriptionUpdateFailure):
             self.customer.update_plan_quantity(2)
 
     @patch("stripe.resource.Customer.update_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_extend(self, StripeCustomerMock, UpdateSubscriptionMock):
-        StripeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
+    def test_extend(self, BraintreeCustomerMock, UpdateSubscriptionMock):
+        BraintreeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
         subscription_instance = create_subscription(self.customer)
         subscription_instance.current_period_end = timezone.datetime.fromtimestamp(END_TIME, tz=timezone.utc)
         delta = timezone.timedelta(days=30)
@@ -261,8 +261,8 @@ class TestSingleSubscription(TestCase):
 
     @patch("stripe.resource.Customer.update_subscription")
     @patch("djbraintree.models.Customer.stripe_customer", new_callable=PropertyMock)
-    def test_extend_with_trial(self, StripeCustomerMock, UpdateSubscriptionMock):
-        StripeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
+    def test_extend_with_trial(self, BraintreeCustomerMock, UpdateSubscriptionMock):
+        BraintreeCustomerMock.return_value = convert_to_fake_stripe_object(DUMMY_CUSTOMER_WITH_SUB_BASIC)
         subscription_instance = create_subscription(self.customer)
         subscription_instance.trial_end = timezone.now() + timezone.timedelta(days=5)
 

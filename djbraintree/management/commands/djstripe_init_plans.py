@@ -8,7 +8,7 @@ from ...sync import sync_plans
 
 class Command(BaseCommand):
 
-    help = "Make sure your Stripe account has the plans"
+    help = "Make sure your Braintree account has the plans"
 
     def handle(self, *args, **options):
         sync_plans()

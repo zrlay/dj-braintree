@@ -2,7 +2,7 @@
 """
 Wire this into the root URLConf this way::
 
-    url(r'^stripe/', include('djbraintree.urls', namespace="djbraintree")),
+    url(r'^braintree/', include('djbraintree.urls', namespace="djbraintree")),
     # url can be changed
     # Call to 'djbraintree.urls' and 'namespace' must stay as is
 

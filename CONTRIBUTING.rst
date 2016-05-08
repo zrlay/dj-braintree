@@ -104,5 +104,5 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring.
 3. If the pull request makes changes to a model, include Django migrations (Django 1.7+).
 4. The pull request should work for Python 2.7 and 3.4. Check
-   https://travis-ci.org/pydanny/dj-braintree/pull_requests
+   https://travis-ci.org/mightbejosh/dj-braintree/pull_requests
    and make sure that the tests pass for all supported Python versions.

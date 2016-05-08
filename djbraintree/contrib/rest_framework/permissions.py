@@ -5,7 +5,7 @@ from ...utils import subscriber_has_active_subscription
 from ...settings import subscriber_request_callback
 
 
-class DJStripeSubscriptionPermission(BasePermission):
+class DJBraintreeSubscriptionPermission(BasePermission):
 
     def has_permission(self, request, view):
         """

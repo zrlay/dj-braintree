@@ -58,8 +58,8 @@ class TestPaymentsContextMixin(TestCase):
             pass
 
         context = TestView().get_context_data()
-        self.assertIn("STRIPE_PUBLIC_KEY", context, "STRIPE_PUBLIC_KEY missing from context.")
-        self.assertEqual(context["STRIPE_PUBLIC_KEY"], settings.STRIPE_PUBLIC_KEY, "Incorrect STRIPE_PUBLIC_KEY.")
+        self.assertIn("BRAINTREE_PUBLIC_KEY", context, "BRAINTREE_PUBLIC_KEY missing from context.")
+        self.assertEqual(context["BRAINTREE_PUBLIC_KEY"], settings.BRAINTREE_PUBLIC_KEY, "Incorrect BRAINTREE_PUBLIC_KEY.")
 
         self.assertIn("PLAN_CHOICES", context, "PLAN_CHOICES missing from context.")
         self.assertEqual(context["PLAN_CHOICES"], djbraintree_settings.PLAN_CHOICES, "Incorrect PLAN_CHOICES.")

@@ -10,7 +10,7 @@ except ImportError:
     rest_framework = None
 
 if rest_framework:
-    from djbraintree.contrib.rest_framework.permissions import DJStripeSubscriptionPermission
+    from djbraintree.contrib.rest_framework.permissions import DJBraintreeSubscriptionPermission
 
     class TestUserHasActiveSubscription(TestCase):
 
@@ -28,10 +28,10 @@ if rest_framework:
         def test_no_user_in_request(self):
             request = RequestFactory().get('djbraintree/')
 
-            self.assertFalse(DJStripeSubscriptionPermission().has_permission(request=request, view=None))
+            self.assertFalse(DJBraintreeSubscriptionPermission().has_permission(request=request, view=None))
 
         def test_user(self):
             request = RequestFactory().get('djbraintree/')
             request.user = self.user
 
-            self.assertFalse(DJStripeSubscriptionPermission().has_permission(request=request, view=None))
+            self.assertFalse(DJBraintreeSubscriptionPermission().has_permission(request=request, view=None))
