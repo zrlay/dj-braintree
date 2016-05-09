@@ -1,12 +1,12 @@
 [run]
 branch = True
-source = djstripe
+source = djbraintree
 
 omit =
-    djstripe/migrations/*
-    djstripe/management/*
-    djstripe/admin.py
-    djstripe/*__init__.py
+    djbraintree/migrations/*
+    djbraintree/management/*
+    djbraintree/admin.py
+    djbraintree/*__init__.py
 
 [html]
 directory = cover

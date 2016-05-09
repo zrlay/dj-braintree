@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from djbraintree.settings import get_payer_model, plan_from_stripe_id
+from djbraintree.settings import get_payer_model, plan_from_braintree_id
 
 
 class TestSubscriberModelRetrievalMethod(TestCase):
@@ -45,11 +45,11 @@ class TestSubscriberModelRetrievalMethod(TestCase):
 
 class TestSettings(TestCase):
 
-    def test_plan_from_stripe_ID(self):
-        plan = plan_from_stripe_id("test_id")
+    def test_plan_from_braintree_ID(self):
+        plan = plan_from_braintree_id("test_id")
         self.assertEqual("test", plan)
 
-    @override_settings(DJSTRIPE_PLANS={})
+    @override_settings(DJBRAINTREE_PLANS={})
     def test_empty_plans(self):
-        plan = plan_from_stripe_id("test_id")
+        plan = plan_from_braintree_id("test_id")
         self.assertEqual(None, plan)

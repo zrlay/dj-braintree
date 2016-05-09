@@ -72,7 +72,7 @@ urlpatterns = [
 
     # Webhook
     url(
-        app_settings.DJSTRIPE_WEBHOOK_URL,
+        app_settings.DJBRAINTREE_WEBHOOK_URL,
         views.WebHook.as_view(),
         name="webhook"
     ),

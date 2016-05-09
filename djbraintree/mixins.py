@@ -14,8 +14,9 @@ from django.contrib import messages
 from django.shortcuts import redirect
 
 from . import settings as djbraintree_settings
-from .models import Customer, CurrentSubscription
-from .utils import subscriber_has_active_subscription
+from .models import Customer
+    # CurrentSubscription
+from .utils import entity_has_active_subscription
 
 
 class SubscriptionPaymentRequiredMixin(object):
@@ -25,7 +26,7 @@ class SubscriptionPaymentRequiredMixin(object):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        if not subscriber_has_active_subscription(djbraintree_settings.subscriber_request_callback(request)):
+        if not entity_has_active_subscription(djbraintree_settings.subscriber_request_callback(request)):
             message = "Your account is inactive. Please renew your subscription"
             messages.info(request, message, fail_silently=True)
             return redirect("djbraintree:subscribe")
@@ -55,5 +56,5 @@ class SubscriptionMixin(PaymentsContextMixin):
         context['is_plans_plural'] = bool(len(djbraintree_settings.PLAN_CHOICES) > 1)
         context['customer'], created = Customer.get_or_create(
             subscriber=djbraintree_settings.subscriber_request_callback(self.request))
-        context['CurrentSubscription'] = CurrentSubscription
+        # context['CurrentSubscription'] = CurrentSubscription
         return context

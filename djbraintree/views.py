@@ -18,20 +18,19 @@ from braces.views import CsrfExemptMixin
 from braces.views import FormValidMessageMixin
 from braces.views import LoginRequiredMixin
 from braces.views import SelectRelatedMixin
-import stripe
 
 from .forms import PlanForm, CancelSubscriptionForm
 from .mixins import PaymentsContextMixin, SubscriptionMixin
-from .models import CurrentSubscription
+# from .models import CurrentSubscription
 from .models import Customer
-from .models import Event
-from .models import EventProcessingException
+# from .models import Event
+# from .models import EventProcessingException
 from .settings import PLAN_LIST
 from .settings import PAYMENT_PLANS
 from .settings import subscriber_request_callback
 from .settings import PRORATION_POLICY_FOR_UPGRADES
 from .settings import CANCELLATION_AT_PERIOD_END
-from .sync import sync_subscriber
+from .sync import sync_entity
 
 
 # ============================================================================ #
@@ -45,14 +44,14 @@ class AccountView(LoginRequiredMixin, SelectRelatedMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(AccountView, self).get_context_data(**kwargs)
-        customer, created = Customer.get_or_create(
-            subscriber=subscriber_request_callback(self.request))
-        context['customer'] = customer
-        try:
-            context['subscription'] = customer.current_subscription
-        except CurrentSubscription.DoesNotExist:
-            context['subscription'] = None
-        context['plans'] = PLAN_LIST
+        # customer, created = Customer.get_or_create(
+        #     subscriber=subscriber_request_callback(self.request))
+        # context['customer'] = customer
+        # try:
+        #     context['subscription'] = customer.current_subscription
+        # except CurrentSubscription.DoesNotExist:
+        #     context['subscription'] = None
+        # context['plans'] = PLAN_LIST
         return context
 
 
@@ -76,27 +75,27 @@ class ChangeCardView(LoginRequiredMixin, PaymentsContextMixin, DetailView):
         TODO: Raise a validation error when a stripe token isn't passed.
             Should be resolved when a form is used.
         """
-
-        customer = self.get_object()
-        try:
-            send_invoice = customer.card_fingerprint == ""
-            customer.update_card(
-                request.POST.get("stripe_token")
-            )
-            if send_invoice:
-                customer.send_invoice()
-            customer.retry_unpaid_invoices()
-        except stripe.BraintreeError as exc:
-            messages.info(request, "Braintree Error")
-            return render(
-                request,
-                self.template_name,
-                {
-                    "customer": self.get_object(),
-                    "stripe_error": str(exc)
-                }
-            )
-        messages.info(request, "Your card is now updated.")
+        #
+        # customer = self.get_object()
+        # try:
+        #     send_invoice = customer.card_fingerprint == ""
+        #     customer.update_card(
+        #         request.POST.get("stripe_token")
+        #     )
+        #     if send_invoice:
+        #         customer.send_invoice()
+        #     customer.retry_unpaid_invoices()
+        # except stripe.BraintreeError as exc:
+        #     messages.info(request, "Braintree Error")
+        #     return render(
+        #         request,
+        #         self.template_name,
+        #         {
+        #             "customer": self.get_object(),
+        #             "stripe_error": str(exc)
+        #         }
+        #     )
+        # messages.info(request, "Your card is now updated.")
         return redirect(self.get_post_success_url())
 
     def get_post_success_url(self):
@@ -124,7 +123,7 @@ class SyncHistoryView(CsrfExemptMixin, LoginRequiredMixin, View):
         return render(
             request,
             self.template_name,
-            {"customer": sync_subscriber(subscriber_request_callback(request))}
+            {"customer": sync_entity(subscriber_request_callback(request))}
         )
 
 
@@ -148,10 +147,10 @@ class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMix
         customer, created = Customer.get_or_create(
             subscriber=subscriber_request_callback(self.request))
 
-        if hasattr(customer, "current_subscription") and customer.current_subscription.plan == plan['plan'] and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED:
-            message = "You already subscribed to this plan"
-            messages.info(request, message, fail_silently=True)
-            return redirect("djbraintree:subscribe")
+        # if hasattr(customer, "current_subscription") and customer.current_subscription.plan == plan['plan'] and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED:
+        #     message = "You already subscribed to this plan"
+        #     messages.info(request, message, fail_silently=True)
+        #     return redirect("djbraintree:subscribe")
 
         return super(ConfirmFormView, self).get(request, *args, **kwargs)
 
@@ -168,14 +167,14 @@ class ConfirmFormView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMix
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
-            try:
-                customer, created = Customer.get_or_create(
-                    subscriber=subscriber_request_callback(self.request))
-                customer.update_card(self.request.POST.get("stripe_token"))
-                customer.subscribe(form.cleaned_data["plan"])
-            except stripe.BraintreeError as exc:
-                form.add_error(None, str(exc))
-                return self.form_invalid(form)
+            # try:
+            #     customer, created = Customer.get_or_create(
+            #         subscriber=subscriber_request_callback(self.request))
+            #     customer.update_card(self.request.POST.get("stripe_token"))
+            #     customer.subscribe(form.cleaned_data["plan"])
+            # except stripe.BraintreeError as exc:
+            #     form.add_error(None, str(exc))
+            #     return self.form_invalid(form)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
@@ -206,26 +205,26 @@ class ChangePlanView(LoginRequiredMixin, FormValidMessageMixin, SubscriptionMixi
             return self.form_invalid(form)
 
         if form.is_valid():
-            try:
-                # When a customer upgrades their plan, and DJSTRIPE_PRORATION_POLICY_FOR_UPGRADES is set to True,
-                # we force the proration of the current plan and use it towards the upgraded plan,
-                # no matter what DJSTRIPE_PRORATION_POLICY is set to.
-                if PRORATION_POLICY_FOR_UPGRADES:
-                    current_subscription_amount = customer.current_subscription.amount
-                    selected_plan_name = form.cleaned_data["plan"]
-                    selected_plan = [plan for plan in PLAN_LIST if plan["plan"] == selected_plan_name][0]  # TODO: refactor
-                    selected_plan_price = selected_plan["price"] / decimal.Decimal("100")
-
-                    # Is it an upgrade?
-                    if selected_plan_price > current_subscription_amount:
-                        customer.subscribe(selected_plan_name, prorate=True)
-                    else:
-                        customer.subscribe(selected_plan_name)
-                else:
-                    customer.subscribe(form.cleaned_data["plan"])
-            except stripe.BraintreeError as exc:
-                form.add_error(None, str(exc))
-                return self.form_invalid(form)
+            # try:
+            #     # When a customer upgrades their plan, and DJSTRIPE_PRORATION_POLICY_FOR_UPGRADES is set to True,
+            #     # we force the proration of the current plan and use it towards the upgraded plan,
+            #     # no matter what DJSTRIPE_PRORATION_POLICY is set to.
+            #     if PRORATION_POLICY_FOR_UPGRADES:
+            #         current_subscription_amount = customer.current_subscription.amount
+            #         selected_plan_name = form.cleaned_data["plan"]
+            #         selected_plan = [plan for plan in PLAN_LIST if plan["plan"] == selected_plan_name][0]  # TODO: refactor
+            #         selected_plan_price = selected_plan["price"] / decimal.Decimal("100")
+            #
+            #         # Is it an upgrade?
+            #         if selected_plan_price > current_subscription_amount:
+            #             customer.subscribe(selected_plan_name, prorate=True)
+            #         else:
+            #             customer.subscribe(selected_plan_name)
+            #     else:
+            #         customer.subscribe(form.cleaned_data["plan"])
+            # except stripe.BraintreeError as exc:
+            #     form.add_error(None, str(exc))
+            #     return self.form_invalid(form)
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
@@ -267,14 +266,14 @@ class WebHook(CsrfExemptMixin, View):
     def post(self, request, *args, **kwargs):
         body = smart_str(request.body)
         data = json.loads(body)
-        if Event.stripe_objects.exists_by_json(data):
-            EventProcessingException.objects.create(
-                data=data,
-                message="Duplicate event record",
-                traceback=""
-            )
-        else:
-            event = Event.create_from_stripe_object(data)
-            event.validate()
-            event.process()
+        # if Event.stripe_objects.exists_by_json(data):
+        #     EventProcessingException.objects.create(
+        #         data=data,
+        #         message="Duplicate event record",
+        #         traceback=""
+        #     )
+        # else:
+        #     event = Event.create_from_stripe_object(data)
+        #     event.validate()
+        #     event.process()
         return HttpResponse()

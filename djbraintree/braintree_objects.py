@@ -32,8 +32,7 @@ import braintree
 
 from .managers import BraintreeObjectManager
 
-from django_braintree_marketplace.utils import VERIFICATION_CHOICES, \
-    STATUS_CHOICES, THREE_D_SECURE_CHOICES
+from .utils import VERIFICATION_CHOICES, STATUS_CHOICES, THREE_D_SECURE_CHOICES
 
 public_key = settings.BRAINTREE_PUBLIC_KEY
 private_key = settings.BRAINTREE_PRIVATE_KEY
@@ -46,6 +45,7 @@ def configure_braintree():
                                       merchant_id=merchant_id,
                                       public_key=public_key,
                                       private_key=private_key)
+
 
 @python_2_unicode_compatible
 class BraintreeObject(TimeStampedModel):
@@ -89,7 +89,7 @@ class BraintreeObject(TimeStampedModel):
         return ["braintree_id={id}".format(id=self.braintree_id)]
 
     @classmethod
-    def braintree_object_to_record(cls, data):
+    def braintree_object_to_record(cls, braintree_object):
         """
         This takes a Result object, as it is formatted in
         Braintree's current API for our object type.
@@ -109,13 +109,13 @@ class BraintreeObject(TimeStampedModel):
         raise NotImplementedError()
 
     @classmethod
-    def create_from_braintree_object(cls, data):
+    def create_from_braintree_object(cls, braintree_object):
         """
         Create a model instance (not saved to db),
         using the given data object from Braintree.
         :type data: dict
         """
-        return cls(**cls.braintree_object_to_record(data))
+        return cls(**cls.braintree_object_to_record(braintree_object))
 
     @classmethod
     def extract_object_from_result(cls, result):
@@ -160,6 +160,11 @@ class BraintreeCustomer(BraintreeObject):
 
     def destroy(self):
         return self.api().delete(self.braintree_id)
+
+    def delete(self, using=None, keep_parents=False):
+        self.destroy()
+        return super(BraintreeCustomer, self).delete(using=using,
+                                                     keep_parents=keep_parents)
 
     def charge(self, amount, options=None, **kwargs):
         """
@@ -207,8 +212,11 @@ class BraintreeCustomer(BraintreeObject):
         }
         return data
 
-    def sync(self, data=None):
-        super(BraintreeCustomer, self).sync(data)
+    def retrieve_transactions(self):
+        collection = braintree.Transaction.search(
+            braintree.TransactionSearch.customer_id == self.braintree_id
+        )
+        return collection
 
 
 class BraintreeAddress(BraintreeObject):
@@ -336,9 +344,9 @@ class BraintreeTransaction(BraintreeObject):
     disbursement_date = models.DateTimeField(null=True, blank=True)
     funds_held = models.CharField(max_length=200, blank=True)
     settlement_amount = models.DecimalField(decimal_places=2, max_digits=7,
-                                            blank=True)
+                                            null=True)
     settlement_currency_exchange_rate = models.DecimalField(decimal_places=8,
-                                                            blank=True,
+                                                            null=True,
                                                             max_digits=12)
     settlement_currency_iso_code = models.CharField(max_length=3, blank=True)
     disbursement_success = models.NullBooleanField(null=True, blank=True)
@@ -482,20 +490,20 @@ class BraintreeTransaction(BraintreeObject):
             "payment_instrument_type": obj.payment_instrument_type,
 
             # Paypal
-            "authorization_id": obj.paypal_details.authorization_id,
-            "capture_id": obj.paypal_details.capture_id,
-            "payer_email": obj.paypal_details.payer_email,
-            "payer_first_name": obj.paypal_details.payer_first_name,
-            "payer_id": obj.paypal_details.payer_id,
-            "payer_last_name": obj.paypal_details.payer_last_name,
-            "payment_id": obj.paypal_details.payment_id,
-            "refund_id": obj.paypal_details.refund_id,
-            "seller_protection_status": obj.paypal_details.seller_protection_status,
-            "tax_id_type": obj.paypal_details.tax_id_type,
-            "transaction_fee_amount": obj.paypal_details.transaction_fee_amount,
-            "transaction_fee_currency_iso_code": obj.paypal_details.transaction_fee_currency_iso_code,
-            "token": obj.paypal_details.token,
-            "image_url": obj.paypal_details.image_url,
+            "authorization_id": obj.paypal_details["authorization_id"],
+            "capture_id": obj.paypal_details["capture_id"],
+            "payer_email": obj.paypal_details["payer_email"],
+            "payer_first_name": obj.paypal_details["payer_first_name"],
+            "payer_id": obj.paypal_details["payer_id"],
+            "payer_last_name": obj.paypal_details["payer_last_name"],
+            "payment_id": obj.paypal_details["payment_id"],
+            "refund_id": obj.paypal_details["refund_id"],
+            "seller_protection_status": obj.paypal_details["seller_protection_status"],
+            "tax_id_type": obj.paypal_details["tax_id_type"],
+            "transaction_fee_amount": obj.paypal_details["transaction_fee_amount"],
+            "transaction_fee_currency_iso_code": obj.paypal_details["transaction_fee_currency_iso_code"],
+            "token": obj.paypal_details["token"],
+            "image_url": obj.paypal_details["image_url"],
 
             "plan_id": obj.plan_id,
             "processor_authorization_code": obj.processor_authorization_code,
@@ -516,8 +524,8 @@ class BraintreeTransaction(BraintreeObject):
             "status": obj.status,
             "status_history": obj.status_history,
 
-            "billing_period_end_date": obj.subscription_details.billing_period_end_date,
-            "billing_period_start_date": obj.subscription_details.billing_period_start_date,
+            "billing_period_end_date": obj.subscription_details["billing_period_end_date"],
+            "billing_period_start_date": obj.subscription_details["billing_period_start_date"],
 
             "subscription_id": obj.subscription_id,
             "tax_amount": obj.tax_amount,
@@ -535,7 +543,13 @@ class BraintreeTransaction(BraintreeObject):
         }
         for field in data:
             if field.endswith("amount"):
-                data[field] = Decimal(data[field]).quantize(Decimal('.01'))
+                if data[field]:
+                    data[field] = Decimal(data[field]).quantize(Decimal('.01'))
+                else:
+                    data[field] = None
+            if field.endswith("date") or field.endswith("_at"):
+                if not data[field]:
+                    data[field] = None
 
         return data
 
@@ -601,7 +615,7 @@ class BraintreeTransaction(BraintreeObject):
         return self._parse_result(result)
 
     @classmethod
-    def object_to_customer(cls, manager, data):
+    def object_to_customer(cls, manager, braintree_object):
         """
         Search the given manager for the customer matching this
         BraintreeTransaction object.
@@ -609,14 +623,15 @@ class BraintreeTransaction(BraintreeObject):
         :param manager: braintree_objects manager for a table
         of BraintreeCustomers
         :type manager: BraintreeObjectManager
-        :param data: braintree object
-        :type data: dict
+        :param braintree_object: Object returned from API
+        :type braintree_object: braintree.Transaction
         """
-        return manager.get_by_json(data,
-                                   "customer") if "customer" in data else None
+        if getattr(braintree_object, "customer_details"):
+            return manager.get_by_json(braintree_object.customer_details["id"])
+        return None
 
     @classmethod
-    def object_to_merchant_account(cls, manager, data):
+    def object_to_merchant_account(cls, manager, braintree_object):
         """
         Search the given manager for the merchant account matching this
         BraintreeTransaction object.
@@ -624,9 +639,9 @@ class BraintreeTransaction(BraintreeObject):
         :param manager: braintree_objects manager for a
         table of BraintreeMerchantAccount
         :type manager: BraintreeObjectManager
-        :param data: braintree object
-        :type data: dict
+        :param braintree_object: Object returned from API
+        :type braintree_object: braintree.Transaction
         """
-        if "merchant_account" in data:
-            return manager.get_by_json(data, "merchant_account")
+        if getattr(braintree_object, "merchant_account_id"):
+            return manager.get_by_json(braintree_object.merchant_account_id)
         return None
