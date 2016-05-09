@@ -126,6 +126,8 @@ class BraintreeObject(TimeStampedModel):
         return result.getattr(cls.braintree_api_name)
 
     def sync(self, braintree_object=None):
+        if not braintree_object:
+            braintree_object = self.api_find()
         data = self.braintree_object_to_record(braintree_object)
         for attr, value in data.items():
             setattr(self, attr, value)
@@ -176,9 +178,16 @@ class BraintreeCustomer(BraintreeObject):
                 "You must supply a decimal value representing dollars."
             )
 
+        payment_method_token = kwargs.get('payment_method_token')
+        payment_method_nonce = kwargs.get('payment_method_nonce')
+        if not (payment_method_token or payment_method_nonce):
+            raise ValueError(
+                "You must supply a payment method nonce or token."
+            )
+
         data = dict(
             amount=amount,
-            customer_id=self.customer_id,
+            customer_id=self.braintree_id,
             **kwargs
         )
 
@@ -562,11 +571,11 @@ class BraintreeTransaction(BraintreeObject):
             result = self.api().submit_for_settlement(
                 self.braintree_id)
 
-        return self._parse_result(result)
+        return result
 
     def void(self):
         result = self.api().void(self.braintree_id)
-        return self._parse_result(result)
+        return result
 
     def calculate_max_refund(self, amount=None):
         """
@@ -585,16 +594,16 @@ class BraintreeTransaction(BraintreeObject):
     def refund(self, amount=None):
         max_amount = self.calculate_max_refund(amount=amount)
         if amount:
-            result = self.api().refund(self.transaction_id,
+            result = self.api().refund(self.braintree_id,
                                        max_amount)
         else:
-            result = self.api().refund(self.transaction_id)
+            result = self.api().refund(self.braintree_id)
 
         if result.is_success:
-            self.amount_refunded += max_amount
+            self.amount_refunded = max_amount + (self.amount_refunded or 0)
             self.save()
 
-        return self._parse_result(result)
+        return result
 
     def clone(self):
         raise NotImplementedError(
@@ -604,15 +613,15 @@ class BraintreeTransaction(BraintreeObject):
 
     def hold_in_escrow(self):
         result = self.api().hold_in_escrow(self.braintree_id)
-        return self._parse_result(result)
+        return result
 
     def release_from_escrow(self):
         result = self.api().release_from_escrow(self.braintree_id)
-        return self._parse_result(result)
+        return result
 
     def cancel_release(self):
         result = self.api().cancel_release(self.braintree_id)
-        return self._parse_result(result)
+        return result
 
     @classmethod
     def object_to_customer(cls, manager, braintree_object):

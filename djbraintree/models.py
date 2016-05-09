@@ -28,8 +28,8 @@ class Customer(BraintreeCustomer):
     # objects = CustomerManager()
     def str_parts(self):
         return [
-                   smart_text(self.user),
-                   "email={email}".format(email=self.user.email),
+                   smart_text(self.entity),
+                   "email={email}".format(email=self.entity.email),
                ] + super(Customer, self).str_parts()
 
     @classmethod
@@ -62,8 +62,9 @@ class Customer(BraintreeCustomer):
         self.save()
 
     def sync_transactions(self, braintree_collection=None, **kwargs):
-        braintree_search = braintree_collection or self.retrieve_transactions()
-        for transaction in braintree_search.items:
+        if braintree_collection is None:
+            braintree_collection = self.retrieve_transactions()
+        for transaction in braintree_collection.items:
             self.record_transaction(transaction)
 
     def record_transaction(self, braintree_transaction):
