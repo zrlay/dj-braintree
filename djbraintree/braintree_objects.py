@@ -330,6 +330,7 @@ class BraintreeTransaction(BraintreeObject):
 
     additional_processor_response = models.CharField(max_length=255, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=7, null=True)
+    # TODO: Refactor amount_refunded to query amounts on related refund Txs
     amount_refunded = models.DecimalField(decimal_places=2, max_digits=7,
                                           null=True)
     avs_error_response_code = models.CharField(max_length=50, blank=True)
@@ -469,24 +470,25 @@ class BraintreeTransaction(BraintreeObject):
 
         data = {
             "braintree_id": obj.id,
-            "additional_processor_response": obj.additional_processor_response,
+            "additional_processor_response": obj.additional_processor_response or '',
             "amount": obj.amount,
-            "avs_error_response_code": obj.avs_error_response_code,
-            "avs_postal_code_response_code": obj.avs_postal_code_response_code,
-            "avs_street_address_response_code": obj.avs_street_address_response_code,
-            "channel": obj.channel,
+            "avs_error_response_code": obj.avs_error_response_code or '',
+            "avs_postal_code_response_code": obj.avs_postal_code_response_code or '',
+            "avs_street_address_response_code": obj.avs_street_address_response_code or '',
+            "channel": obj.channel or '',
             "created_at": obj.created_at,
 
             "currency_iso_code": obj.currency_iso_code,
             "cvv_response_code": obj.cvv_response_code,
+
             # Descriptor Fields
-            "name": obj.descriptor.name,
-            "phone": obj.descriptor.phone,
-            "url": obj.descriptor.url,
+            "name": obj.descriptor.name or '',
+            "phone": obj.descriptor.phone or '',
+            "url": obj.descriptor.url or '',
 
             # Disbursement Details
             "disbursement_date": obj.disbursement_details.disbursement_date,
-            "funds_held": obj.disbursement_details.funds_held,
+            "funds_held": obj.disbursement_details.funds_held or '',
             "settlement_amount": obj.disbursement_details.settlement_amount,
             "settlement_currency_exchange_rate": obj.disbursement_details.settlement_currency_exchange_rate,
             "settlement_currency_iso_code": obj.disbursement_details.settlement_currency_iso_code,
@@ -497,22 +499,6 @@ class BraintreeTransaction(BraintreeObject):
             "merchant_account_id": obj.merchant_account_id,
             "order_id": obj.order_id,
             "payment_instrument_type": obj.payment_instrument_type,
-
-            # Paypal
-            "authorization_id": obj.paypal_details["authorization_id"],
-            "capture_id": obj.paypal_details["capture_id"],
-            "payer_email": obj.paypal_details["payer_email"],
-            "payer_first_name": obj.paypal_details["payer_first_name"],
-            "payer_id": obj.paypal_details["payer_id"],
-            "payer_last_name": obj.paypal_details["payer_last_name"],
-            "payment_id": obj.paypal_details["payment_id"],
-            "refund_id": obj.paypal_details["refund_id"],
-            "seller_protection_status": obj.paypal_details["seller_protection_status"],
-            "tax_id_type": obj.paypal_details["tax_id_type"],
-            "transaction_fee_amount": obj.paypal_details["transaction_fee_amount"],
-            "transaction_fee_currency_iso_code": obj.paypal_details["transaction_fee_currency_iso_code"],
-            "token": obj.paypal_details["token"],
-            "image_url": obj.paypal_details["image_url"],
 
             "plan_id": obj.plan_id,
             "processor_authorization_code": obj.processor_authorization_code,
@@ -525,31 +511,68 @@ class BraintreeTransaction(BraintreeObject):
             "refund_ids": obj.refund_ids,
             "refunded_transaction_id": obj.refunded_transaction_id,
 
-            "decision": obj.risk_data.decision,
-            "risk_data_id": obj.risk_data.id,
-
             "service_fee_amount": obj.service_fee_amount,
             "settlement_batch_id": obj.settlement_batch_id,
             "status": obj.status,
             "status_history": obj.status_history,
 
-            "billing_period_end_date": obj.subscription_details["billing_period_end_date"],
-            "billing_period_start_date": obj.subscription_details["billing_period_start_date"],
+            "billing_period_end_date": obj.subscription_details.billing_period_end_date,
+            "billing_period_start_date": obj.subscription_details.billing_period_start_date,
 
             "subscription_id": obj.subscription_id,
             "tax_amount": obj.tax_amount,
             "tax_exempt": obj.tax_exempt,
-
-            "enrolled": obj.three_d_secure_info.enrolled,
-            "liability_shift_possible": obj.three_d_secure_info.liability_shift_possible,
-            "liability_shifted": obj.three_d_secure_info.liability_shifted,
-            "three_d_secure_status": obj.three_d_secure_info.status,
 
             "transaction_type": obj.type,
             "updated_at": obj.updated_at,
             "voice_referral_number": obj.voice_referral_number,
             # "date": convert_tstamp(data, "date"),
         }
+
+        if obj.payment_instrument_type == braintree.PaymentInstrumentType.PayPalAccount:
+            paypal_fields = {
+                "authorization_id": obj.paypal_details["authorization_id"],
+                "capture_id": obj.paypal_details["capture_id"],
+                "payer_email": obj.paypal_details["payer_email"],
+                "payer_first_name": obj.paypal_details["payer_first_name"],
+                "payer_id": obj.paypal_details["payer_id"],
+                "payer_last_name": obj.paypal_details["payer_last_name"],
+                "payment_id": obj.paypal_details["payment_id"],
+                "refund_id": obj.paypal_details["refund_id"],
+                "seller_protection_status": obj.paypal_details[
+                    "seller_protection_status"],
+                "tax_id_type": obj.paypal_details["tax_id_type"],
+                "transaction_fee_amount": obj.paypal_details[
+                    "transaction_fee_amount"],
+                "transaction_fee_currency_iso_code": obj.paypal_details[
+                    "transaction_fee_currency_iso_code"],
+                "token": obj.paypal_details["token"],
+                "image_url": obj.paypal_details["image_url"],
+            }
+
+            data.update(paypal_fields)
+        else:
+            payment_fields = {
+                "token": obj.credit_card_details.token,
+                "image_url": obj.credit_card_details.image_url,
+            }
+            data.update(payment_fields)
+
+        # Fragile Fields
+        # Some returned dicts seem to return as None instead of empty objects.
+        if obj.risk_data:
+            data.update({
+                "decision": obj.risk_data.decision,
+                "risk_data_id": obj.risk_data.id,
+            })
+        if obj.three_d_secure_info:
+            data.update({
+                "enrolled": obj.three_d_secure_info.enrolled,
+                "liability_shift_possible": obj.three_d_secure_info.liability_shift_possible,
+                "liability_shifted": obj.three_d_secure_info.liability_shifted,
+                "three_d_secure_status": obj.three_d_secure_info.status,
+            })
+
         for field in data:
             if field.endswith("amount"):
                 if data[field]:
@@ -592,6 +615,18 @@ class BraintreeTransaction(BraintreeObject):
         return Decimal(amount_to_refund).quantize(Decimal('.01'))
 
     def refund(self, amount=None):
+        """
+        Refunds work by returning a new braintree.Transaction that refunds or
+        partially refunds the initial braintree.Transaction.
+        That means we can't use the returned transaction to overwrite the
+        initial transaction, but should create a new Transaction related to it.
+
+        :param amount: The amount to refund
+        :type amount: decimal.Decimal
+        :return: The transaction refunded plus the result which wraps the Tx
+            that represents the refund action.
+        :rtype: tuple[Transaction, Union[SuccessfulResult, ErrorResult]]
+        """
         max_amount = self.calculate_max_refund(amount=amount)
         if amount:
             result = self.api().refund(self.braintree_id,
@@ -600,10 +635,9 @@ class BraintreeTransaction(BraintreeObject):
             result = self.api().refund(self.braintree_id)
 
         if result.is_success:
+            self.sync()  # Will fetch new refund_ids for this instance.
             self.amount_refunded = max_amount + (self.amount_refunded or 0)
-            self.save()
-
-        return result
+        return (self, result)
 
     def clone(self):
         raise NotImplementedError(

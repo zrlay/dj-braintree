@@ -96,7 +96,6 @@ class Transaction(BraintreeTransaction):
     customer = models.ForeignKey(Customer,
                                  related_name="transactions",
                                  null=True)
-
     @classmethod
     def sync_from_braintree_object(cls, braintree_object):
         try:
@@ -111,6 +110,28 @@ class Transaction(BraintreeTransaction):
         transaction.customer = customer
         transaction.save()
         return transaction
+
+    def refund(self, amount=None):
+        """
+        Refunds work by returning a new braintree.Transaction that refunds or
+        partially refunds the initial braintree.Transaction.
+        That means we can't use the returned transaction to sync the
+        initial transaction, but should create a new Transaction related to it.
+
+        :param amount: The amount to refund
+        :type amount: decimal.Decimal
+        :return: The transaction refunded plus the result which wraps the Tx
+            that represents the refund action.
+        :rtype: tuple[Transaction, Union[SuccessfulResult, ErrorResult]]
+        """
+        refunded_tx, result = super(Transaction, self).refund(amount)
+        if result.is_success:
+            refunded_tx.save()  # Has been sync()'ed, so will have new TX in refund_ids
+
+            # Creates a new "refund transaction" which should have this
+            # instance's `braintree_id` as `refunded_transaction_id`
+            Transaction.sync_from_braintree_object(result.transaction)
+        return (refunded_tx, result)
 
 
 # Run with models.py
