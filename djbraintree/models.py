@@ -99,27 +99,67 @@ class Transaction(BraintreeTransaction):
 
     @classmethod
     def sync_from_braintree_object(cls, braintree_object):
+        # Get or create the Transaction()
         try:
-            transaction = cls.braintree_objects.get_by_json(braintree_object.id)
+            transaction = cls.braintree_objects.get_by_resource(
+                braintree_object)
+            print("Found tx:", transaction)
         except cls.DoesNotExist:
             transaction = cls.create_from_braintree_object(braintree_object)
+            print("Transaction not found, creating:", transaction)
         else:
             transaction.sync(braintree_object)
+            print("Synced transaction:",transaction)
 
+        # Get or create a Customer() if one is attached to the Transaction
+        customer_object = cls.object_to_customer_object(braintree_object)
         try:
-            customer = cls.object_to_customer(Customer.braintree_objects,
-                                              braintree_object)
+            customer = Customer.braintree_objects.get_by_resource(
+                customer_object)
         except Customer.DoesNotExist:
-            customer = None
+            customer = Customer.create_from_braintree_object(
+                customer_object)
+        else:
+            customer.sync(customer_object)
         transaction.customer = customer
+
+        # Get or create a PaymentMethod()
+
+        # Get or create a MerchantAccount()
+
+        # Get or create a Subscription()
+
+        # Get or create billing Address()
+
+        # Get or create shipping Address()
         transaction.save()
         return transaction
 
     def sync(self, braintree_object=None):
+        """
+        Synchronize a Transaction with an existing braintree.Transaction.
+        If none is provided, the Transaction will attempt to find
+        its corresponding record on Braintree to read in.
+
+        :param braintree_object: The braintree transaction to read in. Optional.
+        :type braintree_object: braintree.Transaction
+        """
         super(Transaction, self).sync(braintree_object)
         self.save()
 
     def capture(self, amount=None):
+        """
+        Submit an authorized transaction for settlement.
+        https://developers.braintreepayments.com/reference/request/transaction/submit-for-settlement/python
+
+        This is the second step in an authorize-and-capture flow.
+
+        :param amount: Amount to submit for settlement. If not specified will
+            capture the full amount.
+        :type amount: decimal.Decimal
+        :return: Result object
+        :rtype: Union[SuccessfulResult, ErrorResult]
+        """
         result = super(Transaction, self).capture(amount)
         if result.is_success:
             self.sync(result.transaction)
@@ -132,7 +172,8 @@ class Transaction(BraintreeTransaction):
         That means we can't use the returned transaction to sync the
         initial transaction, but should create a new Transaction related to it.
 
-        :param amount: The amount to refund
+        :param amount: The amount to refund. If not specified will refund
+            the maximum left to refund.
         :type amount: decimal.Decimal
         :return: The transaction refunded plus the result which wraps the Tx
             that represents the refund action.
@@ -145,28 +186,57 @@ class Transaction(BraintreeTransaction):
             # Creates a new "refund transaction" which should have this
             # instance's `braintree_id` as `refunded_transaction_id`
             Transaction.sync_from_braintree_object(result.transaction)
-        return (refunded_tx, result)
-
+        return refunded_tx, result
 
     def void(self):
+        """ Void an authorized transaction
+        https://developers.braintreepayments.com/reference/request/transaction/void
+
+        :return: Result object
+        :rtype: Union[SuccessfulResult, ErrorResult]
+        """
         result = super(Transaction, self).void()
         if result.is_success:
             self.sync(result.transaction)
         return result
 
     def hold_in_escrow(self):
+        """
+        Hold funds from an authorized or captured Transaction in escrow
+        note:: Marketplace enabled accounts only
+        https://developers.braintreepayments.com/reference/request/transaction/hold-in-escrow
+
+        :return: Result object
+        :rtype: Union[SuccessfulResult, ErrorResult]
+        """
         result = super(Transaction, self).hold_in_escrow()
         if result.is_success:
             self.sync(result.transaction)
         return result
 
     def release_from_escrow(self):
+        """
+        Release funds held in escrow
+        note:: Marketplace enabled accounts only
+        https://developers.braintreepayments.com/reference/request/transaction/release-from-escrow
+
+        :return: Result object
+        :rtype: Union[SuccessfulResult, ErrorResult]
+        """
         result = super(Transaction, self).release_from_escrow()
         if result.is_success:
             self.sync(result.transaction)
         return result
 
     def cancel_release(self):
+        """
+        Cancel a release for a transaction where the release is still pending
+        note:: Marketplace enabled accounts only
+        https://developers.braintreepayments.com/reference/request/transaction/cancel-release/python
+
+        :return: Result object
+        :rtype: Union[SuccessfulResult, ErrorResult]
+        """
         result = super(Transaction, self).cancel_release()
         if result.is_success:
             self.sync(result.transaction)

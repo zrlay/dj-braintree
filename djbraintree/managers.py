@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import decimal
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
@@ -21,11 +22,17 @@ class BraintreeObjectManager(models.Manager):
         """
         return self.filter(braintree_id=braintree_object.id).exists()
 
-    def get_by_json(self, braintree_object_id):
+    def get_by_resource(self, braintree_object):
         """
-        Retrieve a matching braintree object based on a Braintree object
-        received from Braintree
-        :param braintree_object_id: Braintree_id from Braintree Object
-        :type braintree_object_id: string
+        Retrieve a local BraintreeObject based on a response resource object
+
+        :param braintree_object: A braintree response resource
+        :type braintree_object: braintree.Resource
         """
-        return self.get(braintree_id=braintree_object_id)
+        try:
+            return self.get(braintree_id=braintree_object.id)
+        except AttributeError:
+            # If the braintree_object doesnt have an ID,
+            # it doesn't exist on braintree, so what record are we fetching?
+            # (The braintree python SDK can produce "empty" resources).
+            raise self.model.DoesNotExist

@@ -113,9 +113,14 @@ class BraintreeObject(TimeStampedModel):
         """
         Create a model instance (not saved to db),
         using the given data object from Braintree.
-        :type data: dict
+        Since the braintree python sdk can return Resources that are
+        entirely blank, we check if the resource has an `id` before creating.
+
+        :type data: braintree.Resource
         """
-        return cls(**cls.braintree_object_to_record(braintree_object))
+        if braintree_object and braintree_object.id:
+            return cls(**cls.braintree_object_to_record(braintree_object))
+        return None
 
     @classmethod
     def extract_object_from_result(cls, result):
@@ -209,15 +214,15 @@ class BraintreeCustomer(BraintreeObject):
     def braintree_object_to_record(cls, obj):
         data = {
             "braintree_id": obj.id,
-            "company": obj.company,
-            "created_at": obj.created_at,
-            "email": obj.email,
-            "fax": obj.fax,
-            "first_name": obj.first_name,
-            "last_name": obj.last_name,
-            "phone": obj.phone,
-            "updated_at": obj.updated_at,
-            "website": obj.website,
+            "company": obj.company or '',
+            "created_at": obj.created_at or None,
+            "email": obj.email or '',
+            "fax": obj.fax or '',
+            "first_name": obj.first_name or '',
+            "last_name": obj.last_name or '',
+            "phone": obj.phone or '',
+            "updated_at": obj.updated_at or None,
+            "website": obj.website or '',
         }
         return data
 
@@ -522,7 +527,6 @@ class BraintreeTransaction(BraintreeObject):
             "transaction_type": obj.type,
             "updated_at": obj.updated_at,
             "voice_referral_number": obj.voice_referral_number or '',
-            # "date": convert_tstamp(data, "date"),
         }
 
         if obj.payment_instrument_type == braintree.PaymentInstrumentType.PayPalAccount:
@@ -662,13 +666,30 @@ class BraintreeTransaction(BraintreeObject):
         BraintreeTransaction object.
 
         :param manager: braintree_objects manager for a table
-        of BraintreeCustomers
+            of BraintreeCustomers
         :type manager: BraintreeObjectManager
         :param braintree_object: Object returned from API
         :type braintree_object: braintree.Transaction
+        :return: The Customer linked to this transaction, if any
+        :rtype: Optional[Customer]
         """
-        if getattr(braintree_object, "customer_details"):
-            return manager.get_by_json(braintree_object.customer_details.id)
+        customer_object = cls.object_to_customer_object(braintree_object)
+        if customer_object:
+            return manager.get_by_resource(customer_object)
+        return None
+
+    @classmethod
+    def object_to_customer_object(cls, braintree_object):
+        """
+        Extracts the braintree.Customer from a braintree.Transaction
+
+        :param braintree_object: The braintree.Transaction containing
+            customer details.
+        :return: The customer resource object
+        :rtype: Optional[braintree.Customer]
+        """
+        if braintree_object.customer_details.id:
+            return braintree_object.customer_details
         return None
 
     @classmethod
@@ -684,5 +705,5 @@ class BraintreeTransaction(BraintreeObject):
         :type braintree_object: braintree.Transaction
         """
         if getattr(braintree_object, "merchant_account_id"):
-            return manager.get_by_json(braintree_object.merchant_account_id)
+            return manager.get_by_resource(braintree_object.merchant_account_id)
         return None

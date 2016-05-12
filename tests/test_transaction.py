@@ -140,7 +140,8 @@ class TransactionTest(TestCase):
             amount=decimal.Decimal("10.00"),
         )
         transaction_void_mock.return_value = get_fake_success_transaction(
-            status='voided'
+            status='voided',
+            id="tx_XXXXXX",
         )
         transaction.void()
         self.assertEquals(transaction.status, "voided")
@@ -152,7 +153,8 @@ class TransactionTest(TestCase):
             amount=decimal.Decimal("10.00"),
         )
         transaction_hold_mock.return_value = get_fake_success_transaction(
-            escrow_status='held'
+            escrow_status='held',
+            id="tx_XXXXXX",
         )
         transaction.hold_in_escrow()
         self.assertEquals(transaction.escrow_status, "held")
@@ -164,7 +166,8 @@ class TransactionTest(TestCase):
             amount=decimal.Decimal("10.00"),
         )
         transaction_release_mock.return_value = get_fake_success_transaction(
-            escrow_status='release_pending'
+            escrow_status='release_pending',
+            id="tx_XXXXXX",
         )
         transaction.release_from_escrow()
         self.assertEquals(transaction.escrow_status, "release_pending")
@@ -176,7 +179,8 @@ class TransactionTest(TestCase):
             amount=decimal.Decimal("10.00"),
         )
         transaction_cancel_release_mock.return_value = get_fake_success_transaction(
-            escrow_status='held'
+            escrow_status='held',
+            id="tx_XXXXXX",
         )
         transaction.cancel_release()
         self.assertEquals(transaction.escrow_status, "held")
