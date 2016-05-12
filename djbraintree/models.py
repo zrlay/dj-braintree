@@ -96,6 +96,7 @@ class Transaction(BraintreeTransaction):
     customer = models.ForeignKey(Customer,
                                  related_name="transactions",
                                  null=True)
+
     @classmethod
     def sync_from_braintree_object(cls, braintree_object):
         try:
@@ -105,11 +106,24 @@ class Transaction(BraintreeTransaction):
         else:
             transaction.sync(braintree_object)
 
-        customer = cls.object_to_customer(Customer.braintree_objects,
-                                          braintree_object)
+        try:
+            customer = cls.object_to_customer(Customer.braintree_objects,
+                                              braintree_object)
+        except Customer.DoesNotExist:
+            customer = None
         transaction.customer = customer
         transaction.save()
         return transaction
+
+    def sync(self, braintree_object=None):
+        super(Transaction, self).sync(braintree_object)
+        self.save()
+
+    def capture(self, amount=None):
+        result = super(Transaction, self).capture(amount)
+        if result.is_success:
+            self.sync(result.transaction)
+        return result
 
     def refund(self, amount=None):
         """
@@ -132,6 +146,8 @@ class Transaction(BraintreeTransaction):
             # instance's `braintree_id` as `refunded_transaction_id`
             Transaction.sync_from_braintree_object(result.transaction)
         return (refunded_tx, result)
+
+
 
 
 # Run with models.py

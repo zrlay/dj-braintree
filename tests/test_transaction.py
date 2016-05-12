@@ -37,35 +37,47 @@ class TransactionTest(TestCase):
             "braintree_id=transaction_xxxxxxxxxxxxxx>",
             str(transaction))
 
-
-
     def test_sync_from_braintree_object(self):
         result = get_fake_success_transaction()
         transaction = Transaction.sync_from_braintree_object(result.transaction)
 
-        self.assertEqual(Decimal("9.95"), transaction.amount)
-        self.assertEqual(None, transaction.amount_refunded)
+        self.assertEqual(Decimal("10.00"), transaction.amount)
+        self.assertIsNone(transaction.amount_refunded)
 
-    @patch("braintree.Transaction.refund")
-    @patch("braintree.Transaction.find")
-    def test_refund_transaction(self, _, transaction_refund_mock):
+    @patch("braintree.Transaction.submit_for_settlement")
+    def test_capture_transaction(self, transaction_settlement_mock):
         transaction = Transaction.objects.create(
             braintree_id="tx_XXXXXX",
             customer=self.customer,
             amount=decimal.Decimal("10.00"),
         )
-        transaction_refund_mock.return_value.refund.return_value = {
-            "id": "tx_XXXXXX",
-            "amount": "10.00",
-            "captured": True,
-            "amount_refunded": "10.00",
-            "customer": "cus_xxxxxxxxxxxxxxx"
-        }
+        transaction_settlement_mock.return_value = get_fake_success_transaction(
+            status='submitted_for_settlement'
+        )
+        transaction.capture()
+        self.assertEquals(transaction.status, "submitted_for_settlement")
+
+    @patch("braintree.Transaction.refund")
+    @patch("braintree.Transaction.find")
+    def test_refund_transaction(self, transaction_find_mock,
+                                transaction_refund_mock):
+        transaction = Transaction.objects.create(
+            braintree_id="tx_XXXXXX",
+            customer=self.customer,
+            amount=decimal.Decimal("10.00"),
+        )
+        transaction_find_mock.return_value = get_fake_success_transaction(
+            id='tx_XXXXXX').transaction
+        transaction_refund_mock.return_value = get_fake_success_transaction(
+            type='credit')
         transaction.refund()
-        transaction2 = Transaction.objects.get(braintree_id="ch_XXXXXX")
-        self.assertEquals(transaction2.refunded, True)
-        self.assertEquals(transaction2.amount_refunded,
+        transaction1 = Transaction.objects.get(braintree_id="tx_XXXXXX")
+        transaction2 = Transaction.objects.get(braintree_id="d5y99n")
+        self.assertEquals(transaction1.amount_refunded,
                           decimal.Decimal("10.00"))
+        self.assertEquals(transaction1.transaction_type, "sale")
+        self.assertEquals(transaction2.amount, decimal.Decimal("10.00"))
+        self.assertEquals(transaction2.transaction_type, "credit")
 
     @patch("braintree.Transaction.refund")
     @patch("braintree.Transaction.find")
@@ -76,50 +88,15 @@ class TransactionTest(TestCase):
             customer=self.customer,
             amount=decimal.Decimal("10.00"),
         )
-        transaction_find_mock.return_value = get_fake_success_transaction().transaction
-        transaction_refund_mock.return_value = get_fake_success_transaction()
+        transaction_find_mock.return_value = get_fake_success_transaction(
+            id='tx_XXXXXX').transaction
+        transaction_refund_mock.return_value = get_fake_success_transaction(
+            type='credit')
         transaction.refund(
             amount=decimal.Decimal("8.00"),
         )
-        self.assertEquals(transaction.amount_refunded, Decimal("10.00"))
+        self.assertEquals(transaction.amount_refunded, Decimal("8.00"))
         self.assertEquals(Transaction.objects.count(), 2)
-
-    @patch("braintree.Transaction.submit_for_settlement")
-    def test_capture_transaction(self, transaction_settlement_mock):
-        transaction = Transaction.objects.create(
-            braintree_id="tx_XXXXXX",
-            customer=self.customer,
-            amount=decimal.Decimal("10.00"),
-        )
-        transaction_settlement_mock.return_value = {
-            "id": "tx_XXXXXX",
-            "type": "sale",
-            "status": "submitted_for_settlement"
-        }
-        transaction.capture()
-        self.assertEquals(transaction.status, "submitted_for_settlement")
-
-    @patch("braintree.Transaction.refund")
-    @patch("braintree.Transaction.find")
-    def test_refund_transaction_object_returned(self,
-                                                _,
-                                                transaction_refund_mock):
-        transaction = Transaction.objects.create(
-            braintree_id="tx_XXXXXX",
-            customer=self.customer,
-            amount=decimal.Decimal("10.00"),
-        )
-        transaction_refund_mock.return_value.refund.return_value = {
-            "id": "tx_XXXXXX",
-            "amount": "10.00",
-            "captured": True,
-            "amount_refunded": "10.00",
-            "customer": "cus_xxxxxxxxxxxxxxx"
-        }
-        transaction2 = transaction.refund()
-        self.assertEquals(transaction2.refunded, True)
-        self.assertEquals(transaction2.amount_refunded,
-                          decimal.Decimal("10.00"))
 
     def test_calculate_refund_amount_full_refund(self):
         transaction = Transaction(

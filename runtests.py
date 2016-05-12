@@ -183,6 +183,7 @@ def run_test_suite(args):
         percentage = round(cov.report(show_missing=True), 2)
         cov.html_report(directory='cover')
         cov.save()
+        cov.xml_report()
 
         if percentage < TESTS_THRESHOLD:
             sys.stderr.write(colored(text="YOUR CHANGES HAVE CAUSED TEST COVERAGE TO DROP. " +

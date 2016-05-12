@@ -120,9 +120,9 @@ class BraintreeObject(TimeStampedModel):
     @classmethod
     def extract_object_from_result(cls, result):
         """
-        Extracts response object (data) form a successful result object
+        Extracts response object (data) from a successful result object
         """
-        assert (result.is_success)
+        assert result.is_success
         return result.getattr(cls.braintree_api_name)
 
     def sync(self, braintree_object=None):
@@ -461,10 +461,6 @@ class BraintreeTransaction(BraintreeObject):
                    "status={status}".format(status=self.status),
                ] + super(BraintreeTransaction, self).str_parts()
 
-    def update_status(self):
-        self.status = self.api_find().status
-        self.save()
-
     @classmethod
     def braintree_object_to_record(cls, obj):
 
@@ -478,7 +474,7 @@ class BraintreeTransaction(BraintreeObject):
             "channel": obj.channel or '',
             "created_at": obj.created_at,
 
-            "currency_iso_code": obj.currency_iso_code,
+            "currency_iso_code": obj.currency_iso_code or '',
             "cvv_response_code": obj.cvv_response_code,
 
             # Descriptor Fields
@@ -491,69 +487,70 @@ class BraintreeTransaction(BraintreeObject):
             "funds_held": obj.disbursement_details.funds_held or '',
             "settlement_amount": obj.disbursement_details.settlement_amount,
             "settlement_currency_exchange_rate": obj.disbursement_details.settlement_currency_exchange_rate,
-            "settlement_currency_iso_code": obj.disbursement_details.settlement_currency_iso_code,
+            "settlement_currency_iso_code": obj.disbursement_details.settlement_currency_iso_code or '',
             "disbursement_success": obj.disbursement_details.success,
 
-            "escrow_status": obj.escrow_status,
-            "gateway_rejection_reason": obj.gateway_rejection_reason,
+            "escrow_status": obj.escrow_status or '',
+            "gateway_rejection_reason": obj.gateway_rejection_reason or '',
             "merchant_account_id": obj.merchant_account_id,
-            "order_id": obj.order_id,
+            "order_id": obj.order_id or '',
             "payment_instrument_type": obj.payment_instrument_type,
 
-            "plan_id": obj.plan_id,
-            "processor_authorization_code": obj.processor_authorization_code,
-            "processor_response_code": obj.processor_response_code,
-            "processor_response_text": obj.processor_response_text,
-            "processor_settlement_response_code": obj.processor_settlement_response_code,
-            "processor_settlement_response_text": obj.processor_settlement_response_text,
-            "purchase_order_number": obj.purchase_order_number,
-            "recurring": obj.recurring,
-            "refund_ids": obj.refund_ids,
-            "refunded_transaction_id": obj.refunded_transaction_id,
+            "plan_id": obj.plan_id or '',
+            "processor_authorization_code": obj.processor_authorization_code or '',
+            "processor_response_code": obj.processor_response_code or '',
+            "processor_response_text": obj.processor_response_text or '',
+            "processor_settlement_response_code": obj.processor_settlement_response_code or '',
+            "processor_settlement_response_text": obj.processor_settlement_response_text or '',
+            "purchase_order_number": obj.purchase_order_number or '',
+            "recurring": obj.recurring or '',
+            "refund_ids": obj.refund_ids or '',
+            "refunded_transaction_id": obj.refunded_transaction_id or '',
 
             "service_fee_amount": obj.service_fee_amount,
-            "settlement_batch_id": obj.settlement_batch_id,
+            "settlement_batch_id": obj.settlement_batch_id or '',
             "status": obj.status,
-            "status_history": obj.status_history,
+            "status_history": obj.status_history or '',
 
             "billing_period_end_date": obj.subscription_details.billing_period_end_date,
             "billing_period_start_date": obj.subscription_details.billing_period_start_date,
 
-            "subscription_id": obj.subscription_id,
+            "subscription_id": obj.subscription_id or '',
             "tax_amount": obj.tax_amount,
             "tax_exempt": obj.tax_exempt,
 
             "transaction_type": obj.type,
             "updated_at": obj.updated_at,
-            "voice_referral_number": obj.voice_referral_number,
+            "voice_referral_number": obj.voice_referral_number or '',
             # "date": convert_tstamp(data, "date"),
         }
 
         if obj.payment_instrument_type == braintree.PaymentInstrumentType.PayPalAccount:
             paypal_fields = {
-                "authorization_id": obj.paypal_details["authorization_id"],
-                "capture_id": obj.paypal_details["capture_id"],
-                "payer_email": obj.paypal_details["payer_email"],
-                "payer_first_name": obj.paypal_details["payer_first_name"],
-                "payer_id": obj.paypal_details["payer_id"],
-                "payer_last_name": obj.paypal_details["payer_last_name"],
-                "payment_id": obj.paypal_details["payment_id"],
-                "refund_id": obj.paypal_details["refund_id"],
-                "seller_protection_status": obj.paypal_details[
-                    "seller_protection_status"],
-                "tax_id_type": obj.paypal_details["tax_id_type"],
-                "transaction_fee_amount": obj.paypal_details[
-                    "transaction_fee_amount"],
-                "transaction_fee_currency_iso_code": obj.paypal_details[
-                    "transaction_fee_currency_iso_code"],
-                "token": obj.paypal_details["token"],
-                "image_url": obj.paypal_details["image_url"],
+                "authorization_id": obj.paypal_details.authorization_id,
+                "capture_id": obj.paypal_details.capture_id,
+                "payer_email": obj.paypal_details.payer_email,
+                "payer_first_name": obj.paypal_details.payer_first_name,
+                "payer_id": obj.paypal_details.payer_id,
+                "payer_last_name": obj.paypal_details.payer_last_name,
+                "payment_id": obj.paypal_details.payment_id,
+                "refund_id": obj.paypal_details.refund_id,
+                "seller_protection_status": obj.paypal_details.seller_protection_status,
+                "tax_id_type": obj.paypal_details.tax_id_type,
+                "transaction_fee_amount": obj.paypal_details.transaction_fee_amount,
+                "transaction_fee_currency_iso_code": obj.paypal_details.transaction_fee_currency_iso_code,
+                "token": obj.paypal_details.token,
+                "image_url": obj.paypal_details.image_url,
             }
+
+            for field in paypal_fields:
+                if not paypal_fields[field]:
+                    paypal_fields[field] = ''
 
             data.update(paypal_fields)
         else:
             payment_fields = {
-                "token": obj.credit_card_details.token,
+                "token": obj.credit_card_details.token or '',
                 "image_url": obj.credit_card_details.image_url,
             }
             data.update(payment_fields)
@@ -574,11 +571,12 @@ class BraintreeTransaction(BraintreeObject):
             })
 
         for field in data:
-            if field.endswith("amount"):
-                if data[field]:
+            if field.endswith("amount") and data[field]:
+                try:
                     data[field] = Decimal(data[field]).quantize(Decimal('.01'))
-                else:
+                except TypeError:
                     data[field] = None
+
             if field.endswith("date") or field.endswith("_at"):
                 if not data[field]:
                     data[field] = None
@@ -586,13 +584,13 @@ class BraintreeTransaction(BraintreeObject):
         return data
 
     def capture(self, amount=None):
-        if amount:
+        if amount and amount < self.amount:
             amount = Decimal(amount).quantize(Decimal('.01'))
             result = self.api().submit_for_settlement(
                 self.braintree_id, amount)
         else:
             result = self.api().submit_for_settlement(
-                self.braintree_id)
+                self.braintree_id) # Defaults to full capture.
 
         return result
 
@@ -670,7 +668,7 @@ class BraintreeTransaction(BraintreeObject):
         :type braintree_object: braintree.Transaction
         """
         if getattr(braintree_object, "customer_details"):
-            return manager.get_by_json(braintree_object.customer_details["id"])
+            return manager.get_by_json(braintree_object.customer_details.id)
         return None
 
     @classmethod

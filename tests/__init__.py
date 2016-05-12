@@ -1,10 +1,10 @@
-
 import datetime
 from braintree import BraintreeGateway as GWay
 from braintree import SuccessfulResult
 from braintree.transaction import Transaction as Tx
 
-def get_fake_success_transaction(data=None):
+
+def get_fake_success_transaction(**kwargs):
     FAKE_TRANSACTION = {
         u'purchase_order_number': None,
         u'merchant_account_id': u'zacharylayng',
@@ -139,7 +139,7 @@ def get_fake_success_transaction(data=None):
         u'voice_referral_number': None,
         u'master_merchant_account_id': None
     }
+    FAKE_TRANSACTION.update(kwargs)
 
     return SuccessfulResult(
         {"transaction": Tx(GWay(), FAKE_TRANSACTION)})
-
