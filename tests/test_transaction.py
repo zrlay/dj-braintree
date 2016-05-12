@@ -132,3 +132,51 @@ class TransactionTest(TestCase):
                 amount=decimal.Decimal("600.00")),
             500
         )
+
+    @patch("braintree.Transaction.void")
+    def test_void(self, transaction_void_mock):
+        transaction = Transaction.objects.create(
+            braintree_id="tx_XXXXXX",
+            amount=decimal.Decimal("10.00"),
+        )
+        transaction_void_mock.return_value = get_fake_success_transaction(
+            status='voided'
+        )
+        transaction.void()
+        self.assertEquals(transaction.status, "voided")
+
+    @patch("braintree.Transaction.hold_in_escrow")
+    def test_hold_in_escrow(self, transaction_hold_mock):
+        transaction = Transaction.objects.create(
+            braintree_id="tx_XXXXXX",
+            amount=decimal.Decimal("10.00"),
+        )
+        transaction_hold_mock.return_value = get_fake_success_transaction(
+            escrow_status='held'
+        )
+        transaction.hold_in_escrow()
+        self.assertEquals(transaction.escrow_status, "held")
+
+    @patch("braintree.Transaction.release_from_escrow")
+    def test_release_from_escrow(self, transaction_release_mock):
+        transaction = Transaction.objects.create(
+            braintree_id="tx_XXXXXX",
+            amount=decimal.Decimal("10.00"),
+        )
+        transaction_release_mock.return_value = get_fake_success_transaction(
+            escrow_status='release_pending'
+        )
+        transaction.release_from_escrow()
+        self.assertEquals(transaction.escrow_status, "release_pending")
+
+    @patch("braintree.Transaction.cancel_release")
+    def test_cancel_release(self, transaction_cancel_release_mock):
+        transaction = Transaction.objects.create(
+            braintree_id="tx_XXXXXX",
+            amount=decimal.Decimal("10.00"),
+        )
+        transaction_cancel_release_mock.return_value = get_fake_success_transaction(
+            escrow_status='held'
+        )
+        transaction.cancel_release()
+        self.assertEquals(transaction.escrow_status, "held")

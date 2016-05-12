@@ -148,6 +148,29 @@ class Transaction(BraintreeTransaction):
         return (refunded_tx, result)
 
 
+    def void(self):
+        result = super(Transaction, self).void()
+        if result.is_success:
+            self.sync(result.transaction)
+        return result
+
+    def hold_in_escrow(self):
+        result = super(Transaction, self).hold_in_escrow()
+        if result.is_success:
+            self.sync(result.transaction)
+        return result
+
+    def release_from_escrow(self):
+        result = super(Transaction, self).release_from_escrow()
+        if result.is_success:
+            self.sync(result.transaction)
+        return result
+
+    def cancel_release(self):
+        result = super(Transaction, self).cancel_release()
+        if result.is_success:
+            self.sync(result.transaction)
+        return result
 
 
 # Run with models.py
