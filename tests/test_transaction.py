@@ -11,6 +11,7 @@ import decimal
 
 from django.contrib.auth import get_user_model
 from django.test.testcases import TestCase
+from django.utils import timezone
 
 from tests import get_fake_success_transaction
 
@@ -43,6 +44,51 @@ class TransactionTest(TestCase):
 
         self.assertEqual(Decimal("10.00"), transaction.amount)
         self.assertIsNone(transaction.amount_refunded)
+
+    def test_sync_from_braintree_object_is_idempotent(self):
+        result = get_fake_success_transaction()
+        transaction = Transaction.sync_from_braintree_object(result.transaction)
+        transaction2 = Transaction.sync_from_braintree_object(result.transaction)
+        self.assertEqual(transaction, transaction2)
+
+    def test_sync_from_braintree_with_saved_customer(self):
+        result = get_fake_success_transaction(
+            customer ={
+                u'website': None,
+                u'first_name': 'Newman',
+                u'last_name': None,
+                u'company': None,
+                u'created_at': timezone.now() - timezone.timedelta(1),
+                u'updated_at': timezone.now(),
+                u'fax': None,
+                u'email': None,
+                u'phone': None,
+                u'id': self.customer.braintree_id
+            },
+        )
+        transaction = Transaction.sync_from_braintree_object(result.transaction)
+
+        self.assertEqual(transaction.customer, self.customer)
+
+    def test_sync_from_braintree_creates_customer(self):
+        result = get_fake_success_transaction(
+            customer ={
+                u'website': None,
+                u'first_name': 'Newman',
+                u'last_name': None,
+                u'company': None,
+                u'created_at': timezone.now() - timezone.timedelta(1),
+                u'updated_at': timezone.now(),
+                u'fax': None,
+                u'email': None,
+                u'phone': None,
+                u'id': 'newcustomer_YYY'
+            },
+        )
+        transaction = Transaction.sync_from_braintree_object(result.transaction)
+
+        self.assertEqual(transaction.customer.first_name, 'Newman')
+        self.assertEqual(2, Customer.objects.count())
 
     @patch("braintree.Transaction.submit_for_settlement")
     def test_capture_transaction(self, transaction_settlement_mock):

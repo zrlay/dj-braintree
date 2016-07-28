@@ -119,6 +119,8 @@ class Transaction(BraintreeTransaction):
         except Customer.DoesNotExist:
             customer = Customer.create_from_braintree_object(
                 customer_object)
+            if customer:
+                customer.save()
         else:
             customer.sync(customer_object)
         transaction.customer = customer

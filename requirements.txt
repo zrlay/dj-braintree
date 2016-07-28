@@ -1,5 +1,5 @@
 django!=1.9,>=1.8  # Django has a regression in 1.9, see #275
-braintree>=3.25
+braintree>=3.29
 django-model-utils>=2.4
 django-braces>=1.8.1
 jsonfield>=1.0.3

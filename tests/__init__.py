@@ -82,6 +82,7 @@ def get_fake_success_transaction(**kwargs):
         },
         u'customer': {
             u'website': None,
+            u'created_at': None,
             u'first_name': None,
             u'last_name': None,
             u'company': None,
