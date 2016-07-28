@@ -2,8 +2,6 @@
 .. module:: dj-braintree.tests.test_transaction
    :synopsis: dj-braintree Transaction Model Tests.
 
-.. moduleauthor:: Alex Kavanaugh (@kavdev)
-
 """
 from decimal import Decimal
 

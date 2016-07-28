@@ -1,7 +1,28 @@
 import datetime
+
 from braintree import BraintreeGateway as GWay
 from braintree import SuccessfulResult
 from braintree.transaction import Transaction as Tx
+from braintree.customer import Customer
+
+
+def get_fake_customer(**kwargs):
+    FAKE_CUSTOMER = {
+        u'website': None,
+        u'first_name': None,
+        u'last_name': None,
+        u'company': None,
+        u'fax': None,
+        u'email': None,
+        u'phone': None,
+        u'id': u'customer_123',
+        u'updated_at': datetime.datetime(2016, 5, 11, 0, 0, 35),
+        u'created_at': datetime.datetime(2016, 5, 10, 0, 0, 35),
+    }
+    FAKE_CUSTOMER.update(kwargs)
+
+    return SuccessfulResult(
+        {"customer": Customer(GWay(), FAKE_CUSTOMER)})
 
 
 def get_fake_success_transaction(**kwargs):

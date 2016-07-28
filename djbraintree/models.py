@@ -51,6 +51,20 @@ class Customer(BraintreeCustomer):
         customer = Customer.objects.create(entity=entity, **data)
         return customer
 
+    @classmethod
+    def sync_from_braintree_object(cls, braintree_object):
+        try:
+            customer = Customer.braintree_objects.get_by_resource(
+                braintree_object)
+        except Customer.DoesNotExist:
+            customer = Customer.create_from_braintree_object(
+                braintree_object)
+            if customer:
+                customer.save()
+        else:
+            customer.sync(braintree_object)
+        return customer
+
     def update(self, **kwargs):
         result = super(Customer, self).update(**kwargs)
         obj = self.extract_object_from_result(result)
@@ -103,26 +117,14 @@ class Transaction(BraintreeTransaction):
         try:
             transaction = cls.braintree_objects.get_by_resource(
                 braintree_object)
-            print("Found tx:", transaction)
         except cls.DoesNotExist:
             transaction = cls.create_from_braintree_object(braintree_object)
-            print("Transaction not found, creating:", transaction)
         else:
             transaction.sync(braintree_object)
-            print("Synced transaction:",transaction)
 
         # Get or create a Customer() if one is attached to the Transaction
         customer_object = cls.object_to_customer_object(braintree_object)
-        try:
-            customer = Customer.braintree_objects.get_by_resource(
-                customer_object)
-        except Customer.DoesNotExist:
-            customer = Customer.create_from_braintree_object(
-                customer_object)
-            if customer:
-                customer.save()
-        else:
-            customer.sync(customer_object)
+        customer = Customer.sync_from_braintree_object(customer_object)
         transaction.customer = customer
 
         # Get or create a PaymentMethod()

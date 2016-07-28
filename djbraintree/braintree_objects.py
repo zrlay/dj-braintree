@@ -128,7 +128,7 @@ class BraintreeObject(TimeStampedModel):
         Extracts response object (data) from a successful result object
         """
         assert result.is_success
-        return result.getattr(cls.braintree_api_name)
+        return getattr(result, cls.braintree_api_name.lower())
 
     def sync(self, braintree_object=None):
         if not braintree_object:
